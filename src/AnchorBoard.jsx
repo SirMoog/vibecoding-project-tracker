@@ -22,7 +22,7 @@ export default function AnchorBoard({ anchors, onSave }) {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const trigger = useRef(null);
-  const button = 'rounded-md px-3 py-2 text-xs font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-action';
+  const button = 'rounded-md px-3 py-2 text-xs font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-link';
   function edit(anchor, event) {
     trigger.current = event.currentTarget;
     setEditing(anchor.id);
@@ -52,9 +52,9 @@ export default function AnchorBoard({ anchors, onSave }) {
     cancel();
   }
   return (
-    <section aria-labelledby="deliverables-heading" className="sticky top-0 z-10 mb-5 rounded-xl border border-border-subtle bg-surface-card p-4 shadow-sm">
+    <section aria-labelledby="deliverables-heading" className="lg:sticky top-0 z-10 mb-5 rounded-xl border border-border-subtle bg-surface-card p-4 shadow-sm">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 id="deliverables-heading" className="flex items-center gap-2 text-base font-semibold text-brand-action">
+        <h2 id="deliverables-heading" className="flex items-center gap-2 text-base font-semibold text-brand-link">
           <svg aria-hidden="true" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 3h6l-1 6 4 4v2H6v-2l4-4-1-6Zm3 12v6" /></svg>
           Project deliverables
         </h2>
@@ -65,8 +65,8 @@ export default function AnchorBoard({ anchors, onSave }) {
           const destination = webUrl(anchor.url);
           return (
             <div key={anchor.id} className="flex min-w-0 items-center justify-between gap-1 rounded-md border border-border-subtle bg-surface-panel p-1">
-              {destination ? <a href={destination} target="_blank" rel="noopener noreferrer" className={`${button} min-w-0 break-words text-brand-action hover:underline`} aria-label={`Open ${anchor.label} (new tab)`}>{anchor.label} <span aria-hidden="true">↗</span></a> : <span className="px-3 text-sm text-ink-body">{anchor.label}</span>}
-              <button type="button" onClick={event => edit(anchor, event)} className={`${button} shrink-0 text-brand-action hover:bg-surface-selected`} aria-label={`${destination ? 'Edit' : 'Add'} ${anchor.label} link`}>{destination ? 'Edit' : '+ Link'}</button>
+              {destination ? <a href={destination} target="_blank" rel="noopener noreferrer" className={`${button} min-w-0 break-words text-brand-link hover:underline`} aria-label={`Open ${anchor.label} (new tab)`}>{anchor.label} <span aria-hidden="true">↗</span></a> : <span className="px-3 text-sm text-ink-body">{anchor.label}</span>}
+              <button type="button" onClick={event => edit(anchor, event)} className={`${button} shrink-0 text-brand-link hover:bg-surface-selected`} aria-label={`${destination ? 'Edit' : 'Add'} ${anchor.label} link`}>{destination ? 'Edit' : '+ Link'}</button>
             </div>
           );
         })}
@@ -79,7 +79,7 @@ export default function AnchorBoard({ anchors, onSave }) {
           <button type="button" onClick={cancel} className={`${button} bg-surface-panel`}>Cancel</button>
         </div>
         <p id="deliverable-help" className="mt-2 text-xs text-ink-muted">Use a web link. Clear the field and save to remove it.</p>
-        {error && <p role="alert" className="mt-2 text-sm text-red-700">{error}</p>}
+        {error && <p role="alert" className="mt-2 text-sm text-type-bug">{error}</p>}
       </form>}
       <p role="status" aria-live="polite" className={message ? 'mt-2 text-xs text-due-safe' : 'sr-only'}>{message}</p>
     </section>
