@@ -1,27 +1,6 @@
 import { useState, useEffect } from 'react';
 
 /**
- * Vibecoding Project Tracker — starter scaffold.
- *
- * This file is intentionally almost empty. The boilerplate (Vite, React,
- * Tailwind) is configured for you, plus a few shared constants and a
- * localStorage helper. Everything visible on screen, you build.
- *
- * Where to start (build sequence in Phase 3):
- *   - M4  data-model    : render the four columns and the task cards below.
- *   - M5  crud-modal    : add the "+" button modal and the edit-on-click modal.
- *   - M6  tag-style     : feature vs. bug color coding (uses DESIGN.md §2 colors).
- *   - M7  task-owner    : assignee badge + "Hand off to..." dropdown.
- *   - M8  due-tint      : color cards by due date (uses DESIGN.md §2 due-state colors).
- *   - M9  context       : a curated Context briefing field on the modal.
- *   - M10 copy-prompt   : a "Copy as Prompt Context" button that serializes the task + context.
- *   - M11 anchors       : the Anchor Board above the Kanban.
- *   - M12 secret-sauce  : the one open-ended thing that makes your tracker yours.
- *
- * Search the file for `TODO M<n>` to find the right hook for each milestone.
- */
-
-/**
  * @typedef {Object} Task
  * @property {string} id
  * @property {string} title
@@ -31,6 +10,9 @@ import { useState, useEffect } from 'react';
  * @property {string} assignee
  * @property {string|null} dueDate     ISO 'YYYY-MM-DD'
  * @property {string} createdDate      ISO 'YYYY-MM-DD'
+ * @property {string} context
+ * @property {string|null} contextTool
+ * @property {string|null} contextUpdatedAt
  */
 
 // The four columns of the board, in render order.
@@ -42,9 +24,8 @@ export const STAGES = [
   { id: 'done',        label: 'Done' },
 ];
 
-// Replace these placeholders with the three names from PRD §8 before M4.
-// They become the only valid values for `Task.assignee`.
-export const TEAM = ['Teammate A', 'Teammate B', 'Teammate C'];
+// This project is being built by one person.
+export const TEAM = ['SirMoog'];
 
 /**
  * A tiny localStorage hook — survives reloads, no library needed.
@@ -66,52 +47,146 @@ export function useLocalStorage(key, initialValue) {
     try {
       window.localStorage.setItem(key, JSON.stringify(value));
     } catch {
-      /* quota or private-mode error — silently ignore for hackathon */
+      /* Storage may be unavailable; the read-only board still renders. */
     }
   }, [key, value]);
-
   return [value, setValue];
 }
 
-export default function App() {
-  // TODO M4 data-model:
-  //   const [tasks, setTasks] = useLocalStorage('vibetracker.tasks', [/* 3-4 seed tasks */]);
-  //
-  // TODO M5 crud-modal:
-  //   const [editing, setEditing] = useState(null);
-  //
-  // TODO M11 anchors:
-  //   const [anchors, setAnchors] = useLocalStorage('vibetracker.anchors', [...]);
+// Seed once on first use; existing saved tasks take precedence.
+export const INITIAL_TASKS = [
+  {
+    id: 'TASK-104', title: 'Build the task editor',
+    description: 'Create a focused editor for adding, updating and deleting tasks.',
+    type: 'feature', status: 'todo', assignee: TEAM[0], dueDate: null,
+    createdDate: '2026-10-20', context: '', contextTool: null, contextUpdatedAt: null,
+  },
+  {
+    id: 'TASK-103', title: 'Create the Kanban board',
+    description: 'Bring the four workflow stages together in one clear project workspace.',
+    type: 'feature', status: 'in-progress', assignee: TEAM[0], dueDate: '2026-10-23',
+    createdDate: '2026-10-20', context: '', contextTool: null, contextUpdatedAt: null,
+  },
+  {
+    id: 'TASK-102', title: 'Check long task titles',
+    description: 'Verify that longer titles wrap inside cards without pushing the columns apart.',
+    type: 'bug', status: 'review', assignee: TEAM[0], dueDate: '2026-10-24',
+    createdDate: '2026-10-20', context: '', contextTool: null, contextUpdatedAt: null,
+  },
+  {
+    id: 'TASK-101', title: 'Define the visual direction',
+    description: 'Document the blue and lavender palette, typography and component styles.',
+    type: 'feature', status: 'done', assignee: TEAM[0], dueDate: '2026-10-20',
+    createdDate: '2026-10-20', context: '', contextTool: null, contextUpdatedAt: null,
+  },
+];
 
+const STAGE_STYLES = {
+  todo: { dot: 'bg-slate-400', text: 'text-ink-primary' },
+  'in-progress': { dot: 'bg-brand-primary', text: 'text-brand-action' },
+  review: { dot: 'bg-brand-accent', text: 'text-indigo-700' },
+  done: { dot: 'bg-brand-secondary', text: 'text-due-safe' },
+};
+
+function BoardIcon({ className = 'h-5 w-5' }) {
   return (
-    <div className="min-h-screen p-6">
-      <header className="mb-6 flex items-end justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">
-            Vibecoding Project Tracker
-          </h1>
-          <p className="text-sm text-slate-500">
-            {/* Replace this line with your team name from PRD §11. */}
-            Team starter
-          </p>
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <path d="M8 7v10M12 7v6M16 7v8" />
+    </svg>
+  );
+}
+
+function TaskCard({ task }) {
+  return (
+    <article className="min-w-0 rounded-md border border-border-subtle bg-surface-card p-4 shadow-sm" aria-labelledby={`title-${task.id}`}>
+      <div className="mb-3 flex items-center justify-between gap-2 font-mono text-xs text-ink-muted">
+        <span>{task.id}</span>
+        <span className="rounded bg-surface-panel px-2 py-1 capitalize text-ink-body">{task.type}</span>
+      </div>
+      <h3 id={`title-${task.id}`} className="break-words text-base font-semibold leading-6">{task.title}</h3>
+      <p className="mt-2 break-words text-sm leading-6 text-ink-body">{task.description}</p>
+      <div className="mt-4 text-xs text-ink-muted">
+        {task.dueDate ? <>Due <time dateTime={task.dueDate}>{new Date(`${task.dueDate}T12:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</time></> : 'No due date'}
+      </div>
+      <div className="mt-3 flex items-center gap-2 border-t border-border-subtle pt-3 text-xs text-ink-body">
+        <span aria-hidden="true" className="flex h-7 w-7 items-center justify-center rounded-full bg-surface-selected font-semibold text-brand-action">{task.assignee.slice(0, 2).toUpperCase()}</span>
+        <span><span className="sr-only">Assigned to </span>{task.assignee}</span>
+      </div>
+    </article>
+  );
+}
+
+export default function App() {
+  const [tasks] = useLocalStorage('vibetracker.tasks', INITIAL_TASKS);
+  const completedCount = tasks.filter(task => task.status === 'done').length;
+
+  // TODO M11: deliverable links above the board.
+  return (
+    <div className="min-h-screen bg-surface-page font-sans text-ink-primary md:flex">
+      <aside className="flex shrink-0 flex-col border-b border-border-subtle bg-surface-panel md:min-h-screen md:w-56 md:border-b-0 md:border-r">
+        <div className="flex h-20 items-center gap-3 px-5">
+          <span className="rounded-md bg-brand-action p-2 text-white"><BoardIcon /></span>
+          <span className="text-lg font-semibold tracking-tight">FlowTask</span>
         </div>
-      </header>
-
-      {/* TODO M11 anchors: render the Anchor Board (Presentation / Demo / Report / Documentation) above the board. */}
-
-      {/*
-        TODO M4 data-model:
-          Render a Kanban board with the four columns from STAGES.
-          Each column should display the tasks whose status matches its id.
-          Pre-populate 3-4 mock tasks so the board isn't empty on first load.
-
-        TODO M5 crud-modal:
-          Add a "+" button that opens a modal with every Task field.
-          Clicking a card should open the same modal in edit mode.
-      */}
-      <main className="flex h-64 items-center justify-center rounded-lg border-2 border-dashed border-slate-300 text-slate-400">
-        Build the four-column board here · M4
-      </main>
+        <nav aria-label="Project navigation" className="px-3 py-4">
+          <p className="mb-3 px-3 font-mono text-[11px] uppercase tracking-widest text-ink-muted">Workspace</p>
+          <a href="#board" aria-current="page" className="flex items-center gap-3 rounded-md bg-surface-selected px-3 py-3 text-sm font-medium text-brand-action focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-action">
+            <BoardIcon /><span>Core Tasks (MVP)</span><span className="ml-auto text-xs">{tasks.length}</span>
+          </a>
+        </nav>
+        <div className="mx-5 mb-6 mt-auto hidden border-t border-border-subtle pt-4 md:block">
+          <p className="text-sm font-medium">SirMoog's workspace</p>
+          <p className="mt-1 text-xs text-ink-muted">One project. A clearer workflow.</p>
+        </div>
+      </aside>
+      <div className="min-w-0 flex-1">
+        <header className="flex min-h-20 flex-wrap items-center justify-between gap-3 border-b border-border-subtle px-6 py-4">
+          <div className="flex items-center gap-2 text-sm font-medium"><BoardIcon /><span>Vibecoding Project Tracker</span></div>
+          <div className="flex items-center gap-3 text-xs text-ink-muted">
+            <span className="rounded bg-surface-selected px-3 py-1.5 font-medium text-brand-action">Board</span>
+            <span>Personal workspace</span>
+          </div>
+        </header>
+        <main id="board" className="p-6">
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="mb-2 font-mono text-[11px] uppercase tracking-widest text-ink-muted">Project overview</p>
+              <h1 className="text-2xl font-semibold tracking-tight">Kanban Workflow & Delivery</h1>
+              <p className="mt-2 text-sm text-ink-muted">From first idea to finished work.</p>
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs">
+              <span className="rounded-md border border-border-subtle bg-white px-3 py-2">{tasks.length} tasks</span>
+              <span className="rounded-md border border-border-subtle bg-white px-3 py-2">{completedCount} completed</span>
+            </div>
+          </div>
+          <div className="mb-4 flex items-center gap-2 text-xs text-ink-muted">
+            <span className="h-1.5 w-1.5 rounded-full bg-brand-accent" aria-hidden="true" />
+            Starter board · Sample tasks to preview your workflow
+          </div>
+          <div role="region" aria-label="Kanban board" tabIndex={0} className="overflow-x-auto rounded-xl pb-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-action">
+            <div className="grid min-w-[1040px] grid-cols-4 items-stretch gap-4">
+              {STAGES.map(stage => {
+                const stageTasks = tasks.filter(task => task.status === stage.id);
+                const style = STAGE_STYLES[stage.id];
+                return (
+                  <section key={stage.id} aria-labelledby={`stage-${stage.id}`} className="min-h-[560px] min-w-0 rounded-xl border border-border-subtle bg-surface-panel p-3">
+                    <div className="flex items-center gap-2 px-1 pb-4 pt-2">
+                      <span aria-hidden="true" className={`h-2.5 w-2.5 rounded-full ${style.dot}`} />
+                      <h2 id={`stage-${stage.id}`} className={`text-base font-semibold ${style.text}`}>{stage.label}</h2>
+                      <span className="rounded-full bg-surface-selected px-2 py-0.5 text-xs text-ink-body" aria-label={`${stageTasks.length} tasks`}>{stageTasks.length}</span>
+                    </div>
+                    <div className="space-y-3">
+                      {stageTasks.map(task => <TaskCard key={task.id} task={task} />)}
+                      {stageTasks.length === 0 && <p className="rounded-md border border-dashed border-border-subtle p-6 text-center text-sm text-ink-muted">No tasks in {stage.label.toLowerCase()} yet.</p>}
+                    </div>
+                  </section>
+                );
+              })}
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
