@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getDeadline } from './deadlines';
 import TaskEditor from './TaskEditor';
+import AnchorBoard, { INITIAL_ANCHORS } from './AnchorBoard';
 
 /**
  * @typedef {Object} Task
@@ -164,6 +165,7 @@ function TaskCard({ task, onEdit, now }) {
 
 export default function App() {
   const [tasks, saveTasks] = useLocalStorage('vibetracker.tasks', INITIAL_TASKS);
+  const [anchors, saveAnchors] = useLocalStorage('vibetracker.anchors', INITIAL_ANCHORS);
   const [editing, setEditing] = useState(null);
   const [notice, setNotice] = useState('');
   const [now, setNow] = useState(() => new Date());
@@ -203,7 +205,6 @@ export default function App() {
   }
   const completedCount = tasks.filter(task => task.status === 'done').length;
 
-  // TODO M11: deliverable links above the board.
   return (
     <div className="min-h-screen bg-surface-page font-sans text-ink-primary md:flex">
       <aside className="flex shrink-0 flex-col border-b border-border-subtle bg-surface-panel md:min-h-screen md:w-56 md:border-b-0 md:border-r">
@@ -243,6 +244,7 @@ export default function App() {
               <span className="rounded-md border border-border-subtle bg-white px-3 py-2">{completedCount} completed</span>
             </div>
           </div>
+          <AnchorBoard anchors={anchors} onSave={saveAnchors} />
           <div className="mb-4 flex items-center gap-2 text-xs text-ink-muted">
             <span className="h-1.5 w-1.5 rounded-full bg-brand-accent" aria-hidden="true" />
             Click a task to edit · Changes saved in this browser
