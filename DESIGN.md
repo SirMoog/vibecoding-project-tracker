@@ -41,7 +41,7 @@ These names map to Tailwind utilities such as `bg-brand-primary`, `bg-surface-pa
 | `tint-warning` | `#FEF3C7` | Needs-attention badge fill |
 | `tint-neutral` | `#F1F5F9` | Neutral badge fill |
 
-Always pair type and urgency colours with readable labels and icons. Exact urgency thresholds remain as specified by the PRD once resolved; the reference's sample dates and countdowns are illustrative.
+Always pair type and urgency colours with readable labels and icons. The implementation uses local calendar dates: future dates beyond tomorrow are green, today and tomorrow are amber, and dates before today are red. Completed tasks and undated tasks are neutral. A task becomes overdue on the day after its due date. Card backgrounds use the matching pale tint; the feature/bug accent remains visible. Urgency refreshes every 30 seconds and when the page regains focus.
 
 ## 3. Typography and spacing
 

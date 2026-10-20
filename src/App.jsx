@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getDeadline } from './deadlines';
 import TaskEditor from './TaskEditor';
 
 /**
@@ -101,8 +102,22 @@ function BoardIcon({ className = 'h-5 w-5' }) {
   );
 }
 
-function TaskCard({ task, onEdit }) {
+const DEADLINE_STYLES = {
+  neutral: 'bg-surface-card',
+  safe: 'bg-tint-safe',
+  warning: 'bg-tint-warning',
+  overdue: 'bg-tint-bug',
+};
+const DEADLINE_TEXT = {
+  neutral: 'text-due-neutral',
+  safe: 'text-due-safe',
+  warning: 'text-due-warning',
+  overdue: 'text-due-overdue',
+};
+
+function TaskCard({ task, onEdit, now }) {
   const isBug = task.type === 'bug';
+  const deadline = getDeadline(task, now);
   const assignee = task.assignee?.trim() || '';
   const nameParts = assignee.split(/\s+/);
   const initials = assignee
@@ -111,7 +126,7 @@ function TaskCard({ task, onEdit }) {
       : assignee.slice(0, 2)).toUpperCase()
     : '?';
   return (
-    <article onClick={() => onEdit(task)} className={`min-w-0 cursor-pointer rounded-md border border-border-subtle border-l-4 bg-surface-card p-4 shadow-sm transition-shadow hover:shadow-md ${isBug ? 'border-l-type-bug' : 'border-l-type-feature'}`} aria-labelledby={`title-${task.id}`}>
+    <article onClick={() => onEdit(task)} className={`min-w-0 cursor-pointer rounded-md border border-border-subtle border-l-4 p-4 shadow-sm transition-shadow hover:shadow-md ${DEADLINE_STYLES[deadline.state]} ${isBug ? 'border-l-type-bug' : 'border-l-type-feature'}`} aria-labelledby={`title-${task.id}`}>
       <div className="mb-3 flex items-center justify-between gap-2 font-mono text-xs text-ink-muted">
         <span className="min-w-0 break-all">{task.id}</span>
         <span className={`inline-flex shrink-0 items-center gap-1.5 rounded px-2 py-1 font-semibold ${isBug ? 'bg-tint-bug text-type-bug' : 'bg-tint-feature text-type-feature'}`}>
@@ -130,7 +145,11 @@ function TaskCard({ task, onEdit }) {
       <h3 id={`title-${task.id}`} className="break-words text-base font-semibold leading-6"><button type="button" onClick={event => { event.stopPropagation(); onEdit(task); }} aria-label={`Edit ${task.title}`} className="text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-action">{task.title}</button></h3>
       <p className="mt-2 break-words text-sm leading-6 text-ink-body">{task.description}</p>
       <div className="mt-4 text-xs text-ink-muted">
-        {task.dueDate ? <>Due <time dateTime={task.dueDate}>{new Date(`${task.dueDate}T12:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</time></> : 'No due date'}
+        <p className={`mb-1 font-semibold ${DEADLINE_TEXT[deadline.state]}`}>
+          <span aria-hidden="true" className="mr-1">{deadline.state === 'overdue' ? '⚠' : deadline.state === 'warning' ? '◷' : task.status === 'done' ? '✓' : '·'}</span>
+          {deadline.label}
+        </p>
+        {task.dueDate && deadline.label !== 'Invalid due date' && <>Due <time dateTime={task.dueDate}>{new Date(`${task.dueDate}T12:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</time></>}
       </div>
       <div className="mt-3 border-t border-border-subtle pt-3">
         <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-ink-muted">Assignee</p>
@@ -147,6 +166,18 @@ export default function App() {
   const [tasks, saveTasks] = useLocalStorage('vibetracker.tasks', INITIAL_TASKS);
   const [editing, setEditing] = useState(null);
   const [notice, setNotice] = useState('');
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const refreshDate = () => setNow(new Date());
+    const timer = setInterval(refreshDate, 30000);
+    window.addEventListener('focus', refreshDate);
+    document.addEventListener('visibilitychange', refreshDate);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('focus', refreshDate);
+      document.removeEventListener('visibilitychange', refreshDate);
+    };
+  }, []);
   function addTask(status = 'todo') {
     const now = new Date();
     const createdDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -230,7 +261,7 @@ export default function App() {
                       <button onClick={() => addTask(stage.id)} aria-label={`Add task to ${stage.label}`} className="ml-auto rounded px-2 py-1 text-xs text-brand-action hover:bg-surface-selected">+ Add</button>
                     </div>
                     <div className="space-y-3">
-                      {stageTasks.map(task => <TaskCard key={task.id} task={task} onEdit={editTask} />)}
+                      {stageTasks.map(task => <TaskCard key={task.id} task={task} onEdit={editTask} now={now} />)}
                       {stageTasks.length === 0 && <p className="rounded-md border border-dashed border-border-subtle p-6 text-center text-sm text-ink-muted">No tasks in {stage.label.toLowerCase()} yet.</p>}
                     </div>
                   </section>
