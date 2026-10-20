@@ -1,114 +1,98 @@
 # Vibecoding Project Tracker — Design
 
-**Status:** Hackathon starter design doc · fill in the **`<TODO>`** sections before you tag `design-done`.
+**Status:** Design direction supplied by the project owner. Reference images and implementation tokens are recorded below.
 
-**Why this file exists.** This tracker is your tool. It should look like *your* tool — not a generic Kanban with default Tailwind blue. Twenty minutes of design decisions here will be visible on every screen for the next six weeks of Module 5.
+## 1. Mood and references
 
-**Who owns this.** Person B, during the same window the rest of the team is reviewing the PRD. By the time the team converges to start M4 (`data-model`), this file should be filled in and the colors should already be in `tailwind.config.js`.
+A compact desktop workspace with pale lavender surfaces, crisp blue actions, readable task cards and a prominent context editor.
 
----
+- [Board and task editor reference](docs/design/board-reference.png): FlowTask layout, navigation, deliverable links, Kanban cards and right-side editor.
+- [Style reference](docs/design/style-reference.png): Syntropic Control palette and typography.
 
-## 1. Mood / vibe
+Use the style reference's explicitly labelled colours and fonts as the source of truth. Supporting surface, border and status colours below are implementation choices based on the mockup, not exact sampled values. Avoid heavy gradients, oversized dashboard cards and a dark interface.
 
-One sentence that captures the feeling the tracker should leave you with.
+## 2. Colour palette
 
-`<TODO>`
+These names map to Tailwind utilities such as `bg-brand-primary`, `bg-surface-panel` and `text-ink-muted`.
 
-Two or three references that capture the vibe (links to dribbble shots, screenshots of apps you admire, Pinterest boards — anything visual):
-
-- `<TODO>`
-- `<TODO>`
-- `<TODO>`
-
-Anti-references — what we are explicitly **not** trying to look like:
-
-- `<TODO>`
-
-## 2. Color palette
-
-These are the colors the build milestones will reference. Once chosen, paste the hex values into `tailwind.config.js` so the rest of the team can use Tailwind utility classes (e.g. `bg-brand-primary`, `border-due-warning`).
-
-### Brand
-
-| Token | Hex | Where it shows up |
+| Token | Hex | Use |
 |---|---|---|
-| `brand-primary` | `<TODO>` | Header, "+" button, focus rings |
-| `brand-accent` | `<TODO>` | Highlights, hover states, links |
-| `surface-page` | `<TODO>` | Page background |
-| `surface-card` | `<TODO>` | Card background |
-| `text-primary` | `<TODO>` | Body text |
-| `text-muted` | `<TODO>` | Captions, dates, counts |
+| `brand-primary` | `#3B82F6` | Primary brand blue, selection and focus accents |
+| `brand-secondary` | `#10B981` | Secondary green, positive accents |
+| `brand-accent` | `#6366F1` | Tertiary indigo accents |
+| `brand-action` | `#0057C2` | Filled primary buttons and blue text on pale surfaces |
+| `surface-page` | `#F8F7FF` | Main workspace background |
+| `surface-panel` | `#F1F2FF` | Sidebar, columns and editor sections |
+| `surface-card` | `#FFFFFF` | Task cards and deliverable strip |
+| `surface-selected` | `#DCE4FF` | Selected navigation and task accents |
+| `border-subtle` | `#DDE1EF` | Card, input and panel outlines |
+| `ink-primary` | `#0F172A` | Neutral from the style reference; headings and primary text |
+| `ink-body` | `#444B5A` | Body text |
+| `ink-muted` | `#667085` | Captions and secondary labels |
+| `type-feature` | `#1D4ED8` | Feature text/icon with pale blue background |
+| `type-bug` | `#B91C1C` | Bug text/icon with pale red background |
+| `due-safe` | `#047857` | Time remaining, with green text/icon |
+| `due-warning` | `#92400E` | Needs attention, with amber text/icon |
+| `due-overdue` | `#B91C1C` | Overdue, with red text/icon |
+| `due-neutral` | `#475569` | Completed or undated task metadata |
+| `tint-feature` | `#DBEAFE` | Feature badge fill |
+| `tint-bug` | `#FEE2E2` | Bug and overdue badge fill |
+| `tint-safe` | `#ECFDF5` | Time remaining badge fill |
+| `tint-warning` | `#FEF3C7` | Needs-attention badge fill |
+| `tint-neutral` | `#F1F5F9` | Neutral badge fill |
 
-### Task type (M6 `tag-style`)
+Always pair type and urgency colours with readable labels and icons. Exact urgency thresholds remain as specified by the PRD once resolved; the reference's sample dates and countdowns are illustrative.
 
-| Token | Hex | When used |
+## 3. Typography and spacing
+
+| Role | Font | Treatment |
 |---|---|---|
-| `type-feature` | `<TODO>` | Cards tagged `feature` (accent stripe + icon) |
-| `type-bug` | `<TODO>` | Cards tagged `bug` (accent stripe + icon) |
+| Headings | Geist, sans-serif fallback | 24px semibold page title; 16px semibold section headings |
+| Body and controls | Geist, sans-serif fallback | 14px regular body text; 14–16px medium task titles |
+| Labels, task IDs and code | JetBrains Mono, monospace fallback | 12px labels; 13px context/code text |
 
-### Due-date states (M8 `due-tint`)
+Use a 4px spacing scale, typically 8px between related controls, 12–16px card padding and 24px workspace padding. Font families are configured in Tailwind; the font files still need loading when the interface is implemented.
 
-| Token | Hex | When used |
-|---|---|---|
-| `due-safe` | `<TODO>` | More than 2 days out |
-| `due-warning` | `<TODO>` | Less than 24 hours |
-| `due-overdue` | `<TODO>` | Past due |
-| `due-neutral` | `<TODO>` | Done (overrides date) |
+## 4. Layout and components
 
-## 3. Typography
+- **App shell:** a pale lavender left sidebar, compact top toolbar and a spacious main board area. The mockup's sidebar is approximately 300px wide at a 1600px viewport.
+- **Navigation:** icon-and-label rows, blue selected state, muted section labels and small counts. Build navigation only for supported views.
+- **Board header:** project title, task count and prominent Add Task action; compact filters can sit beside them when implemented.
+- **Deliverables:** a white bordered strip above the Kanban with four clearly labelled link slots for Presentation, Demo, Report and Documentation.
+- **Columns:** four fixed stages in order: To Do, In Progress, Review, Done. Each uses a pale panel, a status dot, label, count and add action. Keep desktop columns readable with horizontal scrolling when needed.
+- **Cards:** white fill, thin subtle border, small shadow and 6px corners. Type and ID sit above the title; description and urgency follow; an assignee row sits below a divider. Selected cards receive a blue outline.
+- **Buttons:** compact rectangular controls with 4px corners, icon plus label where useful, solid blue primary fill, pale secondary fill and outlined alternatives. Provide a visible keyboard focus ring.
+- **Task editor:** a large right-aligned overlay, approximately 620px wide on the reference desktop viewport, with a visible board behind it. Include a title bar, close control, task fields, long-text context and a pinned footer with delete, discard and save actions. Allow the content area to scroll.
+- **Context:** a bordered lavender section with a clear heading, readable long-text area and prominent Copy Context action. Preserve whitespace in debugging logs and errors.
+- **Inputs:** pale or white fills, subtle outlines, persistent labels and clear focus states.
+- **Empty states:** short muted guidance and an Add Task action.
+- **Status changes:** use an accessible status selector for the MVP; drag-and-drop remains an extension in the PRD.
+- **Keyboard behaviour:** controls have accessible names; the editor traps focus while open, closes with Escape and restores focus to its trigger.
 
-| Role | Font | Why |
-|---|---|---|
-| Heading | `<TODO>` | `<TODO one sentence>` |
-| Body | `<TODO>` | `<TODO one sentence>` |
-| Monospace (tags, badges, code) | `<TODO>` | `<TODO one sentence>` |
+## 5. Voice and microcopy
 
-Suggested sizes (override only if the design demands it):
+Use short, direct wording consistent with the supplied mockup.
 
-- Page title: 24 px / semibold
-- Section header: 16 px / semibold uppercase
-- Card title: 14 px / medium
-- Body: 14 px / regular
-- Caption: 12 px / regular muted
-
-## 4. Component principles
-
-One short sentence per element. These set the tone for the build phase — Person A's modal and Person B's anchor board should both feel like they came from this doc.
-
-- **Cards:** `<TODO>` (e.g. "Light, almost weightless; the only weight is from a 1px border, no shadow except on hover.")
-- **Buttons:** `<TODO>` (e.g. "Solid fill, no gradient, generous padding, rounded-md.")
-- **Modal:** `<TODO>` (e.g. "Centered, max-width-md, slate-900 backdrop at 50% opacity.")
-- **Empty states:** `<TODO>` (e.g. "Dashed border, muted text, never sad.")
-- **Drag affordance (if used):** `<TODO>` (e.g. "None — we use a status dropdown.")
-
-## 5. Voice / microcopy
-
-Three lines of microcopy that capture the tone of the product. Keep it short — these are the words a stressed user reads at 11pm.
-
-| Where | Text |
+| Location | Text |
 |---|---|
-| "+" button label | `<TODO>` (e.g. "+ Task" or "Add task" or "New") |
-| Empty column placeholder | `<TODO>` (e.g. "Nothing here yet — keep going.") |
-| Toast after "Copy as Prompt Context" | `<TODO>` (e.g. "Copied. Now paste it into the AI.") |
-| Confirm-delete message | `<TODO>` (e.g. "Delete this task? You can't undo.") |
-| Handoff toast (M7 `task-owner`) | `<TODO>` (e.g. "Handed off to {name}. They've got it.") |
+| Add action | Add Task |
+| Empty column | No tasks yet. Add a task to get started. |
+| Context action | Copy Context for AI |
+| Successful copy | Context copied. Ready to paste into your AI tool. |
+| Save action | Save Changes |
+| Discard action | Discard |
+| Delete confirmation | Delete this task? This cannot be undone. |
+| Assignee change | Assigned to {name}. |
+| Successful local save | Saved locally. |
 
-## 6. Logo / wordmark
+Show save confirmation only after storage succeeds.
 
-The tracker probably doesn't need a logo, but it does need a name and a wordmark style.
+## 6. Wordmark
 
-- **Product name:** `<TODO>` (match PRD §11 team identity)
-- **Wordmark style:** `<TODO>` (e.g. "Just the name in the heading font, brand-primary color, no icon.")
+The board reference uses **FlowTask**, with a small blue square containing a white workflow icon and a dark semibold wordmark. Use that as the provisional visual treatment. The separate style sheet is labelled **Syntropic Control**; the final product name has not been explicitly selected between the references.
 
-## 7. Out of scope (this hackathon)
+## 7. Design scope
 
-To keep design tight, the following are explicitly not part of `design-done`:
+This document captures the visual direction for the existing PRD. The reference also shows agent execution, analytics, multiple boards, comments/subtasks and attachments; their appearance in the mockup does not change the PRD's optional or deferred feature status. Do not display fabricated live agent activity.
 
-- A dark mode toggle. Pick one mode and ship it.
-- Multiple themes. One brand, applied consistently.
-- Animations beyond a 200 ms fade on toast notifications.
-- A custom icon set. Use [Lucide icons](https://lucide.dev) via Tailwind classes if you need any.
-
----
-
-*DESIGN.md version: hackathon-starter v1*
+Use one light theme, a consistent existing outline icon set and restrained transitions of around 150–200ms. Board and editor implementation follow in the build milestones.
