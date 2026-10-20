@@ -122,3 +122,9 @@ Sprint navigation lives in the left sidebar: a named sprint list with task count
 ## 11. Light and dark mode
 
 The sidebar contains a keyboard-accessible Dark mode switch. On first visit the theme follows the system colour preference; an explicit choice is saved separately under `vibetracker.theme` and applied before the app renders on subsequent visits. Both themes use semantic CSS colour variables for surfaces, text, task types, deadline states and charts. Solid action buttons retain high-contrast white labels. Theme changes do not modify sprint or task data.
+
+### Moving tasks between sprints and language preferences
+
+- Each task card has a **Move to sprint…** dropdown listing the other sprints. Create a sprint from the sidebar, then select it from this dropdown to transfer a task. The task keeps its ID, status, assignee, dates and AI context, and is appended to the destination sprint. Both boards are saved together; a failed storage write leaves the task in its original sprint.
+- The sidebar **Language / Iaith** setting offers English and Cymraeg. It translates interface labels, form guidance, status messages, deadlines and charts, updates the document language for assistive technology, and persists under `vibetracker.language`.
+- User-written sprint names, task titles, descriptions, names and AI context stay exactly as entered. Translation strings live in `src/welsh.json`.
