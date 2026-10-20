@@ -102,11 +102,23 @@ function BoardIcon({ className = 'h-5 w-5' }) {
 }
 
 function TaskCard({ task, onEdit }) {
+  const isBug = task.type === 'bug';
   return (
-    <article onClick={() => onEdit(task)} className="min-w-0 cursor-pointer rounded-md border border-border-subtle bg-surface-card p-4 shadow-sm hover:border-brand-primary" aria-labelledby={`title-${task.id}`}>
+    <article onClick={() => onEdit(task)} className={`min-w-0 cursor-pointer rounded-md border border-border-subtle border-l-4 bg-surface-card p-4 shadow-sm transition-shadow hover:shadow-md ${isBug ? 'border-l-type-bug' : 'border-l-type-feature'}`} aria-labelledby={`title-${task.id}`}>
       <div className="mb-3 flex items-center justify-between gap-2 font-mono text-xs text-ink-muted">
-        <span>{task.id}</span>
-        <span className="rounded bg-surface-panel px-2 py-1 capitalize text-ink-body">{task.type}</span>
+        <span className="min-w-0 break-all">{task.id}</span>
+        <span className={`inline-flex shrink-0 items-center gap-1.5 rounded px-2 py-1 font-semibold ${isBug ? 'bg-tint-bug text-type-bug' : 'bg-tint-feature text-type-feature'}`}>
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            {isBug ? <>
+              <rect x="7" y="7" width="10" height="14" rx="5" />
+              <path d="M9 7V5a3 3 0 0 1 6 0v2M12 8v12M3 12h4m10 0h4M4 5l4 4m12-4-4 4M3 20l5-3m13 3-5-3" />
+            </> : <>
+              <path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z" />
+              <path d="M20 2v4m-2-2h4" />
+            </>}
+          </svg>
+          {isBug ? 'Bug' : 'Feature'}
+        </span>
       </div>
       <h3 id={`title-${task.id}`} className="break-words text-base font-semibold leading-6"><button type="button" onClick={event => { event.stopPropagation(); onEdit(task); }} aria-label={`Edit ${task.title}`} className="text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-action">{task.title}</button></h3>
       <p className="mt-2 break-words text-sm leading-6 text-ink-body">{task.description}</p>
