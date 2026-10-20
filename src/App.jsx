@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import TaskEditor from './TaskEditor';
 
 /**
  * @typedef {Object} Task
@@ -43,14 +44,17 @@ export function useLocalStorage(key, initialValue) {
     }
   });
 
-  useEffect(() => {
+  // Persist before changing state so a failed write cannot look like a saved edit.
+  function saveValue(nextValue) {
     try {
-      window.localStorage.setItem(key, JSON.stringify(value));
+      window.localStorage.setItem(key, JSON.stringify(nextValue));
+      setValue(nextValue);
+      return true;
     } catch {
-      /* Storage may be unavailable; the read-only board still renders. */
+      return false;
     }
-  }, [key, value]);
-  return [value, setValue];
+  }
+  return [value, saveValue];
 }
 
 // Seed once on first use; existing saved tasks take precedence.
@@ -97,14 +101,14 @@ function BoardIcon({ className = 'h-5 w-5' }) {
   );
 }
 
-function TaskCard({ task }) {
+function TaskCard({ task, onEdit }) {
   return (
-    <article className="min-w-0 rounded-md border border-border-subtle bg-surface-card p-4 shadow-sm" aria-labelledby={`title-${task.id}`}>
+    <article onClick={() => onEdit(task)} className="min-w-0 cursor-pointer rounded-md border border-border-subtle bg-surface-card p-4 shadow-sm hover:border-brand-primary" aria-labelledby={`title-${task.id}`}>
       <div className="mb-3 flex items-center justify-between gap-2 font-mono text-xs text-ink-muted">
         <span>{task.id}</span>
         <span className="rounded bg-surface-panel px-2 py-1 capitalize text-ink-body">{task.type}</span>
       </div>
-      <h3 id={`title-${task.id}`} className="break-words text-base font-semibold leading-6">{task.title}</h3>
+      <h3 id={`title-${task.id}`} className="break-words text-base font-semibold leading-6"><button type="button" onClick={event => { event.stopPropagation(); onEdit(task); }} aria-label={`Edit ${task.title}`} className="text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-action">{task.title}</button></h3>
       <p className="mt-2 break-words text-sm leading-6 text-ink-body">{task.description}</p>
       <div className="mt-4 text-xs text-ink-muted">
         {task.dueDate ? <>Due <time dateTime={task.dueDate}>{new Date(`${task.dueDate}T12:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</time></> : 'No due date'}
@@ -118,7 +122,32 @@ function TaskCard({ task }) {
 }
 
 export default function App() {
-  const [tasks] = useLocalStorage('vibetracker.tasks', INITIAL_TASKS);
+  const [tasks, saveTasks] = useLocalStorage('vibetracker.tasks', INITIAL_TASKS);
+  const [editing, setEditing] = useState(null);
+  const [notice, setNotice] = useState('');
+  function addTask(status = 'todo') {
+    const now = new Date();
+    const createdDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    setNotice('');
+    setEditing({ isNew: true, task: { id: crypto.randomUUID(), title: '', description: '', type: 'feature', status, assignee: TEAM[0], dueDate: null, createdDate, context: '', contextTool: null, contextUpdatedAt: null } });
+  }
+  function editTask(task) {
+    setNotice('');
+    setEditing({ isNew: false, task });
+  }
+  function saveTask(task) {
+    const next = editing.isNew ? [...tasks, task] : tasks.map(item => item.id === task.id ? task : item);
+    if (!saveTasks(next)) return false;
+    setEditing(null);
+    setNotice('Task saved locally.');
+    return true;
+  }
+  function deleteTask(id) {
+    if (!saveTasks(tasks.filter(task => task.id !== id))) return false;
+    setEditing(null);
+    setNotice('Task deleted.');
+    return true;
+  }
   const completedCount = tasks.filter(task => task.status === 'done').length;
 
   // TODO M11: deliverable links above the board.
@@ -156,13 +185,14 @@ export default function App() {
               <p className="mt-2 text-sm text-ink-muted">From first idea to finished work.</p>
             </div>
             <div className="flex flex-wrap gap-2 text-xs">
+              <button onClick={() => addTask()} className="rounded-md bg-brand-action px-4 py-2 font-medium text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-action">+ Add Task</button>
               <span className="rounded-md border border-border-subtle bg-white px-3 py-2">{tasks.length} tasks</span>
               <span className="rounded-md border border-border-subtle bg-white px-3 py-2">{completedCount} completed</span>
             </div>
           </div>
           <div className="mb-4 flex items-center gap-2 text-xs text-ink-muted">
             <span className="h-1.5 w-1.5 rounded-full bg-brand-accent" aria-hidden="true" />
-            Starter board · Sample tasks to preview your workflow
+            Click a task to edit · Changes saved in this browser
           </div>
           <div role="region" aria-label="Kanban board" tabIndex={0} className="overflow-x-auto rounded-xl pb-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-action">
             <div className="grid min-w-[1040px] grid-cols-4 items-stretch gap-4">
@@ -175,9 +205,10 @@ export default function App() {
                       <span aria-hidden="true" className={`h-2.5 w-2.5 rounded-full ${style.dot}`} />
                       <h2 id={`stage-${stage.id}`} className={`text-base font-semibold ${style.text}`}>{stage.label}</h2>
                       <span className="rounded-full bg-surface-selected px-2 py-0.5 text-xs text-ink-body" aria-label={`${stageTasks.length} tasks`}>{stageTasks.length}</span>
+                      <button onClick={() => addTask(stage.id)} aria-label={`Add task to ${stage.label}`} className="ml-auto rounded px-2 py-1 text-xs text-brand-action hover:bg-surface-selected">+ Add</button>
                     </div>
                     <div className="space-y-3">
-                      {stageTasks.map(task => <TaskCard key={task.id} task={task} />)}
+                      {stageTasks.map(task => <TaskCard key={task.id} task={task} onEdit={editTask} />)}
                       {stageTasks.length === 0 && <p className="rounded-md border border-dashed border-border-subtle p-6 text-center text-sm text-ink-muted">No tasks in {stage.label.toLowerCase()} yet.</p>}
                     </div>
                   </section>
@@ -185,8 +216,10 @@ export default function App() {
               })}
             </div>
           </div>
+          <p role="status" aria-live="polite" className="mt-2 text-sm text-brand-action">{notice}</p>
         </main>
       </div>
+      {editing && <TaskEditor key={editing.task.id} {...editing} stages={STAGES} team={TEAM} onSave={saveTask} onDelete={deleteTask} onClose={() => setEditing(null)} />}
     </div>
   );
 }
