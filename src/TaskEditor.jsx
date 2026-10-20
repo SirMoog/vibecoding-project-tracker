@@ -6,6 +6,9 @@ const buttonStyle = 'rounded-md border border-border-subtle px-3 py-2 text-sm fo
 export default function TaskEditor({ task, isNew, stages, team, onSave, onDelete, onClose }) {
   const [draft, setDraft] = useState(() => ({ ...task, context: task.context ?? '' }));
   const [error, setError] = useState('');
+  const [copyStatus, setCopyStatus] = useState('');
+  const [copying, setCopying] = useState(false);
+  const contextInput = useRef(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const dialog = useRef(null);
   useEffect(() => {
@@ -19,6 +22,21 @@ export default function TaskEditor({ task, isNew, stages, team, onSave, onDelete
     const { name, value } = event.target;
     setDraft(current => ({ ...current, [name]: value }));
     setError('');
+    if (name === 'context') setCopyStatus('');
+  }
+  async function copyContext() {
+    setCopying(true);
+    setCopyStatus('');
+    try {
+      await navigator.clipboard.writeText(draft.context);
+      setCopyStatus('Context copied. Ready to paste into your AI tool.');
+    } catch {
+      contextInput.current?.focus();
+      contextInput.current?.select();
+      setCopyStatus('Could not access the clipboard. Context selected—press Ctrl+C or ⌘C to copy.');
+    } finally {
+      setCopying(false);
+    }
   }
   function save(event) {
     event.preventDefault();
@@ -53,11 +71,17 @@ export default function TaskEditor({ task, isNew, stages, team, onSave, onDelete
             <div><label htmlFor="task-due-date" className="text-sm font-medium">Due date (optional)</label><input id="task-due-date" type="date" name="dueDate" value={draft.dueDate || ''} onChange={change} className={inputStyle} /></div>
           </div>
           <section className="rounded-lg border border-indigo-200 bg-surface-panel p-4" aria-labelledby="context-heading">
-            <h3 id="context-heading" className="mb-2 font-semibold">AI briefing</h3>
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <h3 id="context-heading" className="font-semibold">AI briefing</h3>
+              <button type="button" onClick={copyContext} disabled={copying || !draft.context.trim()} className={`${buttonStyle} bg-white text-brand-action disabled:cursor-not-allowed disabled:opacity-50`}>
+                {copying ? 'Copying…' : 'Copy Context'}
+              </button>
+            </div>
             <label htmlFor="task-context" className="text-sm font-medium">Context</label>
             <p id="context-help" className="mt-1 text-xs leading-5 text-ink-muted">Keep a paste-ready briefing here: requirements, decisions, AI conversation summaries, debugging logs, errors and next steps.</p>
             <textarea
               id="task-context"
+              ref={contextInput}
               name="context"
               value={draft.context}
               onChange={change}
@@ -67,6 +91,8 @@ export default function TaskEditor({ task, isNew, stages, team, onSave, onDelete
               placeholder={'Goal:\nRequirements:\nDecisions so far:\nWhat I tried / errors:\nNext steps:'}
             />
             <p className="mt-2 text-xs text-ink-muted">Plain text and Markdown supported. Line breaks are preserved.</p>
+            <p className="mt-1 text-xs text-ink-muted">Copy includes your current edits. Save Changes to keep them.</p>
+            <p role="status" aria-live="polite" className="mt-2 text-sm text-brand-action">{copyStatus}</p>
           </section>
           <p className="text-xs text-ink-muted">Changes are saved in this browser when you select Save Changes.</p>
           {error && <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-800">{error}</p>}
