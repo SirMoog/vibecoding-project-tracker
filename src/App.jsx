@@ -25,8 +25,8 @@ export const STAGES = [
   { id: 'done',        label: 'Done' },
 ];
 
-// This project is being built by one person.
-export const TEAM = ['SirMoog'];
+// Sample teammates for trying task assignment.
+export const TEAM = ['SirMoog', 'Elena Rostova', 'Marcus Chen', 'Devon Vance'];
 
 /**
  * A tiny localStorage hook — survives reloads, no library needed.
@@ -103,6 +103,13 @@ function BoardIcon({ className = 'h-5 w-5' }) {
 
 function TaskCard({ task, onEdit }) {
   const isBug = task.type === 'bug';
+  const assignee = task.assignee?.trim() || '';
+  const nameParts = assignee.split(/\s+/);
+  const initials = assignee
+    ? (nameParts.length > 1
+      ? nameParts[0][0] + nameParts[nameParts.length - 1][0]
+      : assignee.slice(0, 2)).toUpperCase()
+    : '?';
   return (
     <article onClick={() => onEdit(task)} className={`min-w-0 cursor-pointer rounded-md border border-border-subtle border-l-4 bg-surface-card p-4 shadow-sm transition-shadow hover:shadow-md ${isBug ? 'border-l-type-bug' : 'border-l-type-feature'}`} aria-labelledby={`title-${task.id}`}>
       <div className="mb-3 flex items-center justify-between gap-2 font-mono text-xs text-ink-muted">
@@ -125,9 +132,12 @@ function TaskCard({ task, onEdit }) {
       <div className="mt-4 text-xs text-ink-muted">
         {task.dueDate ? <>Due <time dateTime={task.dueDate}>{new Date(`${task.dueDate}T12:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</time></> : 'No due date'}
       </div>
-      <div className="mt-3 flex items-center gap-2 border-t border-border-subtle pt-3 text-xs text-ink-body">
-        <span aria-hidden="true" className="flex h-7 w-7 items-center justify-center rounded-full bg-surface-selected font-semibold text-brand-action">{task.assignee.slice(0, 2).toUpperCase()}</span>
-        <span><span className="sr-only">Assigned to </span>{task.assignee}</span>
+      <div className="mt-3 border-t border-border-subtle pt-3">
+        <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-ink-muted">Assignee</p>
+        <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-border-subtle bg-surface-panel py-1 pl-1 pr-3 text-xs font-medium text-ink-body">
+          <span aria-hidden="true" className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-selected font-semibold text-brand-action">{initials}</span>
+          <span className="min-w-0 break-words"><span className="sr-only">{assignee ? 'Assigned to ' : ''}</span>{assignee || 'Unassigned'}</span>
+        </span>
       </div>
     </article>
   );
