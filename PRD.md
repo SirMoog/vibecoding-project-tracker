@@ -177,7 +177,7 @@ The hackathon is "done" when all 13 milestone tags are pushed to your repo and v
 | FR03 | Allow users to change a task's status and move it between the four columns. | Yes |
 | FR04 | Allow users to set and edit task due dates. | Yes |
 | FR05 | Allow users to classify tasks as bugs or features and visually distinguish between them. | Yes |
-| FR28 | Create, rename and delete named teams; add and remove members; make members available for ticket assignment. Teams share the workspace. Removing the last membership leaves affected tickets unassigned without deleting them. | Yes |
+| FR28 | Create, rename and delete one team per browser workspace; add and remove members and assign tickets to them. A second team cannot be created until the current team is deleted. Removing members leaves affected tickets unassigned without deleting them. | Yes |
 | FR06 | Allow users to assign tasks to named team members and display the assignee on each card. | Yes |
 | FR07 | Indicate whether tasks have time remaining, need immediate attention or are overdue. The urgency threshold needs confirmation. | Yes |
 | FR08 | Allow users to enter, view and edit long-text task context, including requirements, AI conversation summaries, debugging logs and errors. | Yes |

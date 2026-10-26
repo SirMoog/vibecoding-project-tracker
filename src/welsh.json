@@ -191,5 +191,8 @@
   "Removed. Tickets and sprints have been kept.": "Wedi tynnu. Mae tasgau a sbrintiau wedi’u cadw.",
   "Remove {0}? Tickets assigned to people who belong to no remaining team will become unassigned. Tickets and sprints will be kept.": "Tynnu {0}? Bydd tasgau pobl nad ydynt yn perthyn i unrhyw dîm sy’n weddill yn dod yn dasgau heb eu neilltuo. Bydd tasgau a sbrintiau’n cael eu cadw.",
   "Back to board": "Yn ôl i’r bwrdd",
-  "Workspace settings": "Gosodiadau’r gweithle"
+  "Workspace settings": "Gosodiadau’r gweithle",
+  "Only one team is allowed.": "Dim ond un tîm a ganiateir.",
+  "You can have one team. Delete your current team before creating another.": "Gallwch gael un tîm. Dilëwch eich tîm presennol cyn creu un arall.",
+  "Remove {0}? Affected tickets will become unassigned. Tickets and sprints will be kept.": "Tynnu {0}? Bydd y tasgau dan sylw yn dod yn dasgau heb eu neilltuo. Bydd tasgau a sbrintiau’n cael eu cadw."
 }

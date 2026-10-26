@@ -22,7 +22,17 @@ test('deleting final team retains all ticket content', () => {
   assert.equal(next.sprints.flatMap(s => s.tasks).length, 3);
 });
 test('member removal and combined assignment list', () => {
-  const next = replaceTeams(workspace, teams.map(team => ({ ...team, members: team.members.filter(name => name !== 'Noah') })), 'a');
+  const next = replaceTeams(workspace, [{ ...teams[0], members: ['Carys'] }], 'a');
   assert.equal(next.sprints[1].tasks[0].assignee, '');
   assert.deepEqual(allMembers([...teams, { members: ['carys'] }]), ['Carys', 'Noah']);
+});
+
+test('multiple saved teams merge into selected team without losing members', () => {
+  const migrated = migrateTeams({ teams, selectedTeamId: 'b' }, []);
+  assert.deepEqual(migrated, [{ id: 'b', name: 'B', members: ['Carys', 'Noah'] }]);
+  assert.equal(migrateTeams({ teams, selectedTeamId: 'missing' }, [])[0].id, 'a');
+  assert.equal(teams.length, 2);
+});
+test('workspace rejects a second team', () => {
+  assert.throws(() => replaceTeams(workspace, teams, 'a'), /Only one team/);
 });

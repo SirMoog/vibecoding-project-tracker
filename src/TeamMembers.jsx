@@ -3,7 +3,7 @@ import { useLanguage } from './Language';
 import { allMembers } from './teams';
 
 const control = 'rounded-md border border-border-subtle px-3 py-2 text-sm';
-export default function TeamMembers({ teams, selectedId, onSelect, onChange }) {
+export default function TeamMembers({ teams, selectedId, onChange }) {
   const { t } = useLanguage();
   const [name, setName] = useState('');
   const [teamName, setTeamName] = useState('');
@@ -42,6 +42,7 @@ export default function TeamMembers({ teams, selectedId, onSelect, onChange }) {
   }
   function saveTeam(event) {
     event.preventDefault();
+    if (mode === 'create' && teams.length) { setError('Only one team is allowed.'); return; }
     const title = teamName.trim();
     if (!title) { setError('Enter a team name.'); return; }
     if (teams.some(item => (mode !== 'rename' || item.id !== team.id) && item.name.toLowerCase() === title.toLowerCase())) {
@@ -57,19 +58,19 @@ export default function TeamMembers({ teams, selectedId, onSelect, onChange }) {
   }
   return <section aria-labelledby="team-heading" className="rounded-xl border border-border-subtle bg-surface-card p-5 sm:p-8">
     <h1 id="team-heading" tabIndex={-1} className="text-2xl font-semibold">{t('Teams')}</h1>
-    <p className="mt-2 text-sm text-ink-muted">{t('Teams share this workspace. Assign tickets to members of any team.')}</p>
-    {teams.length > 0 ? <><label htmlFor="team-select" className="sr-only">{t('Select team')}</label><select ref={selector} id="team-select" value={selectedId} onChange={event => { if (onSelect(event.target.value)) reset(); else setError('Could not save team changes. Please try again.'); }} className={`${control} mt-2 w-full bg-surface-card`}>{teams.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></> : <p className="mt-2 text-sm">{t('No teams yet. Create a team to add members.')}</p>}
+    <p className="mt-2 text-sm text-ink-muted">{t('You can have one team. Delete your current team before creating another.')}</p>
+    {team ? <h2 ref={selector} tabIndex={-1} className="mt-6 break-words text-xl font-semibold">{team.name}</h2> : <p className="mt-2 text-sm">{t('No teams yet. Create a team to add members.')}</p>}
     <div className="mt-2 flex flex-wrap gap-2">
-      <button id="new-team" type="button" className={control} onClick={() => { reset(); setMode('create'); setTeamName(''); }}>{t('Create team')}</button>
+      {!team && <button id="new-team" type="button" className={control} onClick={() => { reset(); setMode('create'); setTeamName(''); }}>{t('Create team')}</button>}
       {team && <><button type="button" className={control} onClick={() => { reset(); setMode('rename'); setTeamName(team.name); }}>{t('Rename team')}</button><button type="button" className={`${control} text-type-bug`} onClick={() => { reset(); setRemoving({ kind: 'team', name: team.name }); }}>{t('Delete team')}</button></>}
     </div>
     {mode && <form onSubmit={saveTeam} className="mt-3 space-y-2">
       <label htmlFor="team-name" className="text-sm">{t('Team name')}</label>
       <input autoFocus id="team-name" required maxLength={80} value={teamName} onChange={event => { setTeamName(event.target.value); setError(''); }} className={`${control} w-full bg-surface-card`} />
-      <button className={`${control} bg-brand-action text-white`}>{t('Save team')}</button> <button type="button" className={control} onClick={() => { reset(); document.getElementById('new-team')?.focus(); }}>{t('Cancel')}</button>
+      <button className={`${control} bg-brand-action text-white`}>{t('Save team')}</button> <button type="button" className={control} onClick={() => { reset(); (selector.current ?? document.getElementById('new-team'))?.focus(); }}>{t('Cancel')}</button>
     </form>}
     {removing && <div className="mt-3 rounded-md border border-border-subtle p-3" role="group" aria-label={t('Confirm removal')}>
-      <p className="text-sm">{t('Remove {0}? Tickets assigned to people who belong to no remaining team will become unassigned. Tickets and sprints will be kept.', removing.name)}</p>
+      <p className="text-sm">{t('Remove {0}? Affected tickets will become unassigned. Tickets and sprints will be kept.', removing.name)}</p>
       <div className="mt-2 flex flex-wrap gap-2"><button autoFocus type="button" className={control} onClick={() => { reset(); selector.current?.focus(); }}>{t('Cancel')}</button><button type="button" className={`${control} bg-red-700 text-white`} onClick={remove}>{t('Confirm removal')}</button></div>
     </div>}
     {team && <>

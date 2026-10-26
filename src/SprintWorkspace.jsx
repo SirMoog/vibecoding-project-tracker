@@ -314,7 +314,6 @@ export default function SprintWorkspace({
         {view === 'teams' ? <main className="mx-auto w-full max-w-4xl p-4 sm:p-8">
           <button type="button" onClick={backToBoard} className={`${control} mb-6 bg-surface-card text-brand-link`}>{t('Back to board')}</button>
           <TeamMembers teams={workspace.teams} selectedId={workspace.selectedTeamId}
-            onSelect={selectedTeamId => commit({ ...workspace, selectedTeamId })}
             onChange={(teams, selectedId) => commit(replaceTeams(workspace, teams, selectedId))} />
         </main> : sprint ? children({
         sprint,
