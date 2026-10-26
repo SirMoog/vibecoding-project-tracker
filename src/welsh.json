@@ -163,5 +163,12 @@
   "Could not read saved sprint data. Your stored data has not been changed. Check browser storage access and reload.": "Methu darllen data'r sbrintiau a gadwyd. Ni newidiwyd eich data. Gwiriwch fynediad i storfa'r porwr ac ail-lwythwch.",
   "Theme changed for this visit. Browser storage is unavailable.": "Newidiwyd y thema ar gyfer yr ymweliad hwn. Nid yw storfa'r porwr ar gael.",
   "Language changed for this visit. Browser storage is unavailable.": "Newidiwyd yr iaith ar gyfer yr ymweliad hwn. Nid yw storfa'r porwr ar gael.",
-  "Goal:\nRequirements:\nDecisions so far:\nWhat I tried / errors:\nNext steps:": "Nod:\nGofynion:\nPenderfyniadau hyd yma:\nBeth rydw i wedi rhoi cynnig arno / gwallau:\nCamau nesaf:"
+  "Goal:\nRequirements:\nDecisions so far:\nWhat I tried / errors:\nNext steps:": "Nod:\nGofynion:\nPenderfyniadau hyd yma:\nBeth rydw i wedi rhoi cynnig arno / gwallau:\nCamau nesaf:",
+  "Team": "Tîm",
+  "Member name": "Enw aelod",
+  "Add member": "Ychwanegu aelod",
+  "Enter a member name.": "Rhowch enw aelod.",
+  "A team member with that name already exists.": "Mae aelod o’r tîm â’r enw hwnnw eisoes yn bodoli.",
+  "Could not save the member. Your name is still here. Please try again.": "Methu cadw’r aelod. Mae’r enw yma o hyd. Rhowch gynnig arall arni.",
+  "{0} added to the team.": "Ychwanegwyd {0} at y tîm."
 }

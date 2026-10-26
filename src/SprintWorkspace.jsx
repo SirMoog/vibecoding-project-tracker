@@ -1,9 +1,21 @@
 import { LanguageSelect, useLanguage } from "./Language";
 import { useRef, useState } from 'react';
 import ThemeToggle from './ThemeToggle';
+import TeamMembers from './TeamMembers';
 const STORAGE_KEY = 'vibetracker.sprints.v1';
 const control = 'rounded-md border border-border-subtle px-3 py-2 text-sm';
-function loadWorkspace(initialTasks, initialAnchors) {
+function loadTeam(saved, initialTeam, tasks) {
+  if (saved !== undefined && (!Array.isArray(saved) || !saved.every(name => typeof name === 'string' && name.trim()))) throw new Error('Invalid team data');
+  const names = [...(saved ?? initialTeam), ...tasks.map(task => task.assignee).filter(name => typeof name === 'string' && name.trim())];
+  const seen = new Set();
+  return names.map(name => name.trim()).filter(name => {
+    const key = name.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+function loadWorkspace(initialTasks, initialAnchors, initialTeam) {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved !== null) {
@@ -12,6 +24,7 @@ function loadWorkspace(initialTasks, initialAnchors) {
       return {
         data: {
           ...data,
+          team: loadTeam(data.team, initialTeam, data.sprints.flatMap(sprint => sprint.tasks)),
           selectedId: data.sprints.some(sprint => sprint.id === data.selectedId) ? data.selectedId : data.sprints[0]?.id ?? null
         },
         error: ''
@@ -23,6 +36,7 @@ function loadWorkspace(initialTasks, initialAnchors) {
     return {
       data: {
         version: 1,
+        team: loadTeam(undefined, initialTeam, tasks),
         selectedId: 'sprint-1',
         sprints: [{
           id: 'sprint-1',
@@ -43,12 +57,13 @@ function loadWorkspace(initialTasks, initialAnchors) {
 export default function SprintWorkspace({
   initialTasks,
   initialAnchors,
+  initialTeam,
   children
 }) {
   const {
     t
   } = useLanguage();
-  const [loaded] = useState(() => loadWorkspace(initialTasks, initialAnchors));
+  const [loaded] = useState(() => loadWorkspace(initialTasks, initialAnchors, initialTeam));
   const [workspace, setWorkspace] = useState(loaded.data);
   const [error, setError] = useState(loaded.error);
   const [creating, setCreating] = useState(false);
@@ -267,6 +282,7 @@ export default function SprintWorkspace({
         {creating && sprintForm(false)}
         {!renaming && !deleting && error && <p role="alert" className="mt-2 text-sm text-type-bug">{t(error)}</p>}
         <p role="status" aria-live="polite" className={notice ? 'mt-4 text-xs text-brand-link' : 'sr-only'}>{t(notice)}</p>
+        <TeamMembers team={workspace.team} onAdd={member => commit({ ...workspace, team: [...workspace.team, member] })} />
         <ThemeToggle /><LanguageSelect />
         <p className="mt-4 text-xs text-ink-muted">{t("Your sprints, saved in this browser.")}</p>
       </aside>
@@ -274,6 +290,7 @@ export default function SprintWorkspace({
         {sprint ? children({
         sprint,
         sprintFooter,
+        team: workspace.team,
         sprints: workspace.sprints,
         transferTask,
         saveTasks: tasks => updateSprint({

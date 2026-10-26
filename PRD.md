@@ -50,7 +50,7 @@ Task = {
   description: string,
   type: 'feature' | 'bug',       // visual color coding
   status: 'todo' | 'in-progress' | 'review' | 'done',
-  assignee: string,              // one of the three teammate names from §8
+  assignee: string,              // a team member name (see §8 and FR28)
   dueDate: string | null,        // ISO date 'YYYY-MM-DD'
   createdDate: string,           // ISO date 'YYYY-MM-DD'
 
@@ -99,7 +99,7 @@ Fill these in before tagging `prd-done`:
 | Teammate B | `<TODO>` | `<TODO>` |
 | Teammate C | `<TODO>` | `<TODO>` |
 
-These three names become the **only** allowed values for `Task.assignee`. No auth — just a dropdown.
+These names seed the team list. FR28 allows users to add named members in the sidebar and select them in the task assignee dropdown. No authentication is required.
 
 ## 9. Milestone ownership
 
@@ -177,6 +177,7 @@ The hackathon is "done" when all 13 milestone tags are pushed to your repo and v
 | FR03 | Allow users to change a task's status and move it between the four columns. | Yes |
 | FR04 | Allow users to set and edit task due dates. | Yes |
 | FR05 | Allow users to classify tasks as bugs or features and visually distinguish between them. | Yes |
+| FR28 | Allow users to add named members to the team and make them available for ticket assignment. | Yes |
 | FR06 | Allow users to assign tasks to named team members and display the assignee on each card. | Yes |
 | FR07 | Indicate whether tasks have time remaining, need immediate attention or are overdue. The urgency threshold needs confirmation. | Yes |
 | FR08 | Allow users to enter, view and edit long-text task context, including requirements, AI conversation summaries, debugging logs and errors. | Yes |

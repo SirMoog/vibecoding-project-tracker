@@ -250,20 +250,22 @@ function TaskCard({
     </article>;
 }
 export default function App() {
-  return <SprintWorkspace initialTasks={INITIAL_TASKS} initialAnchors={INITIAL_ANCHORS}>
+  return <SprintWorkspace initialTeam={TEAM} initialTasks={INITIAL_TASKS} initialAnchors={INITIAL_ANCHORS}>
     {({
       sprint,
       sprintFooter,
+      team,
       sprints,
       transferTask,
       saveTasks,
       saveAnchors
-    }) => <SprintBoard key={sprint.id} sprint={sprint} sprintFooter={sprintFooter} sprints={sprints} transferTask={transferTask} saveTasks={saveTasks} saveAnchors={saveAnchors} />}
+    }) => <SprintBoard team={team} key={sprint.id} sprint={sprint} sprintFooter={sprintFooter} sprints={sprints} transferTask={transferTask} saveTasks={saveTasks} saveAnchors={saveAnchors} />}
   </SprintWorkspace>;
 }
 function SprintBoard({
   sprint,
   sprintFooter,
+  team,
   sprints,
   transferTask,
   saveTasks,
@@ -306,7 +308,7 @@ function SprintBoard({
         description: '',
         type: 'feature',
         status,
-        assignee: TEAM[0],
+        assignee: team[0] ?? '',
         dueDate: null,
         createdDate,
         context: '',
@@ -454,6 +456,6 @@ function SprintBoard({
           {sprintFooter}
         </main>
       </div>
-      {editing && <TaskEditor key={editing.task.id} {...editing} stages={STAGES} team={TEAM} onSave={saveTask} onDelete={deleteTask} onClose={() => setEditing(null)} />}
+      {editing && <TaskEditor key={editing.task.id} {...editing} stages={STAGES} team={team} onSave={saveTask} onDelete={deleteTask} onClose={() => setEditing(null)} />}
     </div>;
 }

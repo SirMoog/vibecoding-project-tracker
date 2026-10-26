@@ -128,3 +128,7 @@ The sidebar contains a keyboard-accessible Dark mode switch. On first visit the 
 - Each task card has a **Move to sprint…** dropdown listing the other sprints. Create a sprint from the sidebar, then select it from this dropdown to transfer a task. The task keeps its ID, status, assignee, dates and AI context, and is appended to the destination sprint. Both boards are saved together; a failed storage write leaves the task in its original sprint.
 - The sidebar **Language / Iaith** setting offers English and Cymraeg. It translates interface labels, form guidance, status messages, deadlines and charts, updates the document language for assistive technology, and persists under `vibetracker.language`.
 - User-written sprint names, task titles, descriptions, names and AI context stay exactly as entered. Translation strings live in `src/welsh.json`.
+
+### Team members (FR28)
+
+The sidebar Team section lists members and accepts new names for assignment across all sprints. Names are trimmed; blank names and case-insensitive duplicates are rejected. Members are stored with the workspace in browser storage, and are only added to the interface after a successful save. Existing workspaces retain their tasks and gain a team list seeded from the original names and existing assignees. Both new and existing task editors use this shared list. Interface labels support English and Welsh; member names remain as entered.
