@@ -2,6 +2,7 @@ import { LanguageSelect, useLanguage } from "./Language";
 import { useRef, useState } from 'react';
 import ThemeToggle from './ThemeToggle';
 import TeamMembers from './TeamMembers';
+import { allMembers, migrateTeams, replaceTeams } from './teams';
 const STORAGE_KEY = 'vibetracker.sprints.v1';
 const control = 'rounded-md border border-border-subtle px-3 py-2 text-sm';
 function loadTeam(saved, initialTeam, tasks) {
@@ -21,10 +22,13 @@ function loadWorkspace(initialTasks, initialAnchors, initialTeam) {
     if (saved !== null) {
       const data = JSON.parse(saved);
       if (data.version !== 1 || !Array.isArray(data.sprints) || !data.sprints.every(sprint => typeof sprint.id === 'string' && typeof sprint.name === 'string' && Array.isArray(sprint.tasks) && Array.isArray(sprint.anchors))) throw new Error('Invalid sprint data');
+      const teams = migrateTeams(data, data.teams === undefined ? loadTeam(data.team, initialTeam, data.sprints.flatMap(sprint => sprint.tasks)) : []);
+      const { team: legacyTeam, ...rest } = data;
       return {
         data: {
-          ...data,
-          team: loadTeam(data.team, initialTeam, data.sprints.flatMap(sprint => sprint.tasks)),
+          ...rest,
+          teams,
+          selectedTeamId: teams.some(team => team.id === data.selectedTeamId) ? data.selectedTeamId : teams[0]?.id ?? null,
           selectedId: data.sprints.some(sprint => sprint.id === data.selectedId) ? data.selectedId : data.sprints[0]?.id ?? null
         },
         error: ''
@@ -36,7 +40,8 @@ function loadWorkspace(initialTasks, initialAnchors, initialTeam) {
     return {
       data: {
         version: 1,
-        team: loadTeam(undefined, initialTeam, tasks),
+        teams: migrateTeams({}, loadTeam(undefined, initialTeam, tasks)),
+        selectedTeamId: 'team-1',
         selectedId: 'sprint-1',
         sprints: [{
           id: 'sprint-1',
@@ -66,6 +71,8 @@ export default function SprintWorkspace({
   const [loaded] = useState(() => loadWorkspace(initialTasks, initialAnchors, initialTeam));
   const [workspace, setWorkspace] = useState(loaded.data);
   const [error, setError] = useState(loaded.error);
+  const [view, setView] = useState('board');
+  const teamsButton = useRef(null);
   const [creating, setCreating] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [renaming, setRenaming] = useState(false);
@@ -87,12 +94,26 @@ export default function SprintWorkspace({
       return false;
     }
   }
+  function showTeams() {
+    setView('teams');
+    setCreating(false);
+    setRenaming(false);
+    setDeleting(false);
+    window.scrollTo({ top: 0 });
+    requestAnimationFrame(() => document.getElementById('team-heading')?.focus());
+  }
+  function backToBoard() {
+    setView('board');
+    window.scrollTo({ top: 0 });
+    requestAnimationFrame(() => teamsButton.current?.focus());
+  }
   function select(id) {
     if (!workspace.sprints.some(item => item.id === id)) return;
     if (commit({
       ...workspace,
       selectedId: id
     })) {
+      setView('board');
       setCreating(false);
       setDeleting(false);
       setRenaming(false);
@@ -128,6 +149,7 @@ export default function SprintWorkspace({
       sprints: [...workspace.sprints, next]
     })) {
       setName('');
+      setView('board');
       setCreating(false);
       setDeleting(false);
       setRenaming(false);
@@ -258,7 +280,7 @@ export default function SprintWorkspace({
     {(renaming || deleting) && error && <p role="alert" className="mt-2 text-sm text-type-bug">{t(error)}</p>}
   </footer>;
   return <div className="min-h-screen bg-surface-page font-sans text-ink-primary lg:flex">
-      {sprint && <nav aria-label={t("Skip links")} className="skip-links">
+      {sprint && view === 'board' && <nav aria-label={t("Skip links")} className="skip-links">
         <a href="#kanban" onClick={() => requestAnimationFrame(() => document.getElementById('kanban')?.focus())}>{t("Skip to task board")}</a>
         <a href="#insights" onClick={() => requestAnimationFrame(() => document.getElementById('insights')?.focus())}>{t("Skip to board insights")}</a>
       </nav>}
@@ -267,7 +289,7 @@ export default function SprintWorkspace({
         <nav aria-label={t("Sprints")}>
           <div className="mb-3 flex items-center justify-between px-2"><h2 className="text-xs font-semibold uppercase tracking-widest text-ink-muted">{t("Sprints")}</h2><span className="text-xs text-ink-muted">{workspace.sprints.length}</span></div>
           <ul className="space-y-1">{workspace.sprints.map(item => <li key={item.id}>
-            <button ref={item.id === workspace.selectedId ? selector : null} type="button" aria-current={item.id === workspace.selectedId ? 'page' : undefined} onClick={() => select(item.id)} className={`flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm ${item.id === workspace.selectedId ? 'bg-surface-selected font-semibold text-brand-link' : 'text-ink-body hover:bg-surface-card'}`}>
+            <button ref={item.id === workspace.selectedId ? selector : null} type="button" aria-current={view === 'board' && item.id === workspace.selectedId ? 'page' : undefined} onClick={() => select(item.id)} className={`flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm ${view === 'board' && item.id === workspace.selectedId ? 'bg-surface-selected font-semibold text-brand-link' : 'text-ink-body hover:bg-surface-card'}`}>
               <span className="min-w-0 break-words">{item.name}</span><span className="shrink-0 text-xs" aria-label={t("{0} tasks", item.tasks.length)}>{item.tasks.length}</span>
             </button>
           </li>)}</ul>
@@ -282,15 +304,22 @@ export default function SprintWorkspace({
         {creating && sprintForm(false)}
         {!renaming && !deleting && error && <p role="alert" className="mt-2 text-sm text-type-bug">{t(error)}</p>}
         <p role="status" aria-live="polite" className={notice ? 'mt-4 text-xs text-brand-link' : 'sr-only'}>{t(notice)}</p>
-        <TeamMembers team={workspace.team} onAdd={member => commit({ ...workspace, team: [...workspace.team, member] })} />
+        <nav aria-label={t('Workspace settings')} className="mt-6 border-t border-border-subtle pt-4">
+          <button ref={teamsButton} id="teams-button" type="button" onClick={showTeams} aria-current={view === 'teams' ? 'page' : undefined} className={`w-full rounded-md px-3 py-2 text-left text-sm ${view === 'teams' ? 'bg-surface-selected font-semibold text-brand-link' : 'text-ink-body hover:bg-surface-card'}`}>{t('Teams')}</button>
+        </nav>
         <ThemeToggle /><LanguageSelect />
         <p className="mt-4 text-xs text-ink-muted">{t("Your sprints, saved in this browser.")}</p>
       </aside>
       <div className="min-w-0 flex-1">
-        {sprint ? children({
+        {view === 'teams' ? <main className="mx-auto w-full max-w-4xl p-4 sm:p-8">
+          <button type="button" onClick={backToBoard} className={`${control} mb-6 bg-surface-card text-brand-link`}>{t('Back to board')}</button>
+          <TeamMembers teams={workspace.teams} selectedId={workspace.selectedTeamId}
+            onSelect={selectedTeamId => commit({ ...workspace, selectedTeamId })}
+            onChange={(teams, selectedId) => commit(replaceTeams(workspace, teams, selectedId))} />
+        </main> : sprint ? children({
         sprint,
         sprintFooter,
-        team: workspace.team,
+        team: allMembers(workspace.teams),
         sprints: workspace.sprints,
         transferTask,
         saveTasks: tasks => updateSprint({

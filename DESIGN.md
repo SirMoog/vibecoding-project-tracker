@@ -132,3 +132,9 @@ The sidebar contains a keyboard-accessible Dark mode switch. On first visit the 
 ### Team members (FR28)
 
 The sidebar Team section lists members and accepts new names for assignment across all sprints. Names are trimmed; blank names and case-insensitive duplicates are rejected. Members are stored with the workspace in browser storage, and are only added to the interface after a successful save. Existing workspaces retain their tasks and gain a team list seeded from the original names and existing assignees. Both new and existing task editors use this shared list. Interface labels support English and Welsh; member names remain as entered.
+
+### Team management
+
+Named teams have separate member lists and share the existing sprints and tickets. Users can create, rename, switch and delete teams, and remove members after confirmation. Assignment offers the combined member list; a name shared across teams represents the same person. Removing the last membership clears that person’s ticket assignments across all sprints, preserving ticket content. Deleting the final team is allowed; tickets remain unassigned until members are added again. Existing single-team data migrates to Team 1. All roster and assignment changes are saved atomically in the workspace record before updating the UI.
+
+Team management opens as a dedicated main screen from the sidebar Teams button. Back to board or selecting a sprint returns to task management. The active navigation item is marked, and opening Teams focuses its heading for keyboard and screen-reader users.
