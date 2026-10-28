@@ -1,11 +1,14 @@
 import { useRef, useState } from 'react';
 import { useLanguage } from './Language';
 import { allMembers } from './teams';
+import MemberProfile, { MemberContactFields } from './MemberProfile';
 
 const control = 'rounded-md border border-border-subtle px-3 py-2 text-sm';
 export default function TeamMembers({ teams, selectedId, onChange }) {
   const { t } = useLanguage();
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [github, setGithub] = useState('');
   const [teamName, setTeamName] = useState('');
   const [mode, setMode] = useState(null);
   const [removing, setRemoving] = useState(null);
@@ -16,7 +19,7 @@ export default function TeamMembers({ teams, selectedId, onChange }) {
   const team = teams.find(item => item.id === selectedId);
 
   function reset() {
-    setMode(null); setRemoving(null); setName(''); setError(''); setNotice('');
+    setMode(null); setRemoving(null); setName(''); setEmail(''); setGithub(''); setError(''); setNotice('');
   }
   function save(next, id, message) {
     if (!onChange(next, id)) {
@@ -36,7 +39,7 @@ export default function TeamMembers({ teams, selectedId, onChange }) {
       input.current?.focus(); return;
     }
     const canonical = allMembers(teams).find(existing => existing.toLowerCase() === member.toLowerCase()) ?? member;
-    if (save(teams.map(item => item.id === team.id ? { ...item, members: [...item.members, canonical] } : item), team.id, t('{0} added to the team.', canonical))) {
+    if (save(teams.map(item => item.id === team.id ? { ...item, members: [...item.members, canonical], profiles: [...(item.profiles ?? []), { name: canonical, email: email.trim(), github: github.trim() }] } : item), team.id, t('{0} added to the team.', canonical))) {
       requestAnimationFrame(() => input.current?.focus());
     }
   }
@@ -53,7 +56,7 @@ export default function TeamMembers({ teams, selectedId, onChange }) {
     save(next, id, t('Team saved.'));
   }
   function remove() {
-    const next = removing.kind === 'team' ? teams.filter(item => item.id !== team.id) : teams.map(item => item.id === team.id ? { ...item, members: item.members.filter(member => member !== removing.name) } : item);
+    const next = removing.kind === 'team' ? teams.filter(item => item.id !== team.id) : teams.map(item => item.id === team.id ? { ...item, members: item.members.filter(member => member !== removing.name), profiles: (item.profiles ?? []).filter(profile => profile.name !== removing.name) } : item);
     save(next, removing.kind === 'team' ? next[0]?.id ?? null : team.id, t('Removed. Tickets and sprints have been kept.'));
   }
   return <section aria-labelledby="team-heading" className="rounded-xl border border-border-subtle bg-surface-card p-5 sm:p-8">
@@ -74,11 +77,15 @@ export default function TeamMembers({ teams, selectedId, onChange }) {
       <div className="mt-2 flex flex-wrap gap-2"><button autoFocus type="button" className={control} onClick={() => { reset(); selector.current?.focus(); }}>{t('Cancel')}</button><button type="button" className={`${control} bg-red-700 text-white`} onClick={remove}>{t('Confirm removal')}</button></div>
     </div>}
     {team && <>
-      <ul className="mt-2 space-y-1 text-sm">{team.members.map(member => <li key={member} className="flex items-center justify-between gap-2 py-1"><span className="min-w-0 break-words">{member}</span><button type="button" aria-label={t('Remove {0}', member)} className={`${control} shrink-0 text-type-bug`} onClick={() => { reset(); setRemoving({ kind: 'member', name: member }); }}>{t('Remove')}</button></li>)}</ul>
+      <ul className="mt-4 space-y-3 text-sm">{team.members.map(member => <li key={member} className="rounded-lg border border-border-subtle p-3">
+        <div className="flex items-center justify-between gap-2"><span className="min-w-0 break-words font-medium">{member}</span><button type="button" aria-label={t('Remove {0}', member)} className={`${control} shrink-0 text-type-bug`} onClick={() => { reset(); setRemoving({ kind: 'member', name: member }); }}>{t('Remove')}</button></div>
+        <MemberProfile member={member} profile={team.profiles?.find(profile => profile.name === member)} onSave={profile => onChange(teams.map(item => item.id === team.id ? { ...item, profiles: [...(item.profiles ?? []).filter(existing => existing.name !== member), profile] } : item), team.id)} />
+      </li>)}</ul>
       {!team.members.length && <p className="mt-2 text-sm text-ink-muted">{t('No members yet.')}</p>}
       <form onSubmit={add} className="mt-3">
         <label htmlFor="member-name" className="text-sm font-medium">{t('Member name')}</label>
         <input ref={input} id="member-name" required maxLength={80} value={name} onChange={event => { setName(event.target.value); setError(''); setNotice(''); }} className={`${control} mt-1 w-full bg-surface-card`} />
+        <MemberContactFields id="new-member" email={email} github={github} onEmail={setEmail} onGithub={setGithub} />
         <button type="submit" className={`${control} mt-2 bg-brand-action text-white`}>{t('Add member')}</button>
       </form>
     </>}

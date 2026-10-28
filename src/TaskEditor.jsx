@@ -16,7 +16,8 @@ export default function TaskEditor({
   } = useLanguage();
   const [draft, setDraft] = useState(() => ({
     ...task,
-    context: task.context ?? ''
+    context: task.context ?? '',
+    contextTool: task.contextTool ?? ''
   }));
   const [error, setError] = useState('');
   const [copyStatus, setCopyStatus] = useState('');
@@ -91,6 +92,7 @@ export default function TaskEditor({
       ...draft,
       title: draft.title.trim(),
       dueDate: draft.dueDate || null,
+      contextTool: draft.contextTool.trim() || null,
       contextUpdatedAt: contextChanged ? new Date().toISOString() : task.contextUpdatedAt ?? null
     })) {
       setError('Could not save to browser storage. Your edits are still here. Enable storage or free up space, then try again.');
@@ -121,6 +123,7 @@ export default function TaskEditor({
                 {copying ? t("Copying\u2026") : t("Copy Context")}
               </button>
             </div>
+            <div className="mb-4"><label htmlFor="task-ai-tool" className="text-sm font-medium">{t('AI tool used (optional)')}</label><input id="task-ai-tool" name="contextTool" value={draft.contextTool} onChange={change} maxLength={100} className={inputStyle} placeholder={t('e.g. ChatGPT, Claude, GitHub Copilot')} /></div>
             <label htmlFor="task-context" className="text-sm font-medium">{t("Context")}</label>
             <p id="context-help" className="mt-1 text-xs leading-5 text-ink-muted">{t("Keep a paste-ready briefing here: requirements, decisions, AI conversation summaries, debugging logs, errors and next steps.")}</p>
             <textarea id="task-context" ref={contextInput} name="context" value={draft.context} onChange={change} rows={9} aria-describedby="context-help" className={`${inputStyle} resize-y font-mono leading-6`} placeholder={t('Goal:\nRequirements:\nDecisions so far:\nWhat I tried / errors:\nNext steps:')} />

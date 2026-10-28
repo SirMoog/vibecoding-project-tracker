@@ -144,3 +144,7 @@ Team management opens as a dedicated main screen from the sidebar Teams button. 
 Fresh browser workspaces seed two sprints and six varied tickets, including a clearly labelled sample AI handover, all four assignees, an unassigned task and five deadline examples. Dates use local calendar offsets from first load and are persisted immediately. The Demo link points to the deployed prototype. Existing workspace records are not reseeded; legacy single-board records retain their saved tasks and links. The header uses Team board to avoid implying account or workspace switching.
 
 The board scroll container establishes a positioning context so visually hidden accessibility labels cannot expand the mobile page width. At a 390px viewport the document remains 390px wide while columns scroll within the board.
+
+### Optional member and AI tool details
+
+Member contact details are progressively disclosed below each member on the Teams screen. The optional email input uses browser email validation; GitHub accepts a username or URL as plain text. Profiles are stored beside the existing name list, so existing task assignments remain compatible. Removing a member also removes their profile. An optional AI tool used field in the task editor saves to contextTool. Both flows use explicit save actions and retain pending values after a failed storage write.

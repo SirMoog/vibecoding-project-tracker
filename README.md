@@ -118,7 +118,7 @@ For a first-load demonstration, open the prototype in a fresh browser profile or
 These IDs refer to *Adopting technology work (v1)*, not the earlier PRD numbering.
 
 - **NFR8 (proposed report change, not yet confirmed):** change MVP from Yes to No and label it “Implemented defensive behaviour; outside the assessed demonstration”. Failed saves are handled in code and have been tested by forcing storage failures, but no normal first-load screenshot demonstrates that failure. Retain the handling in the application.
-- **FR22–26, NFR14, DR16 and DR18–21:** currently **not implemented or demonstrated**. Treating them as future/out-of-scope requirements is proposed and still requires confirmation. “No” in the MVP column alone does not distinguish them from completed extensions. A reserved `contextTool` field does not demonstrate FR26/DR19.
+- **FR22–24, NFR14, DR16, DR20 and DR21:** currently **not implemented or demonstrated**. Treating them as future/out-of-scope requirements is proposed and still requires confirmation. “No” in the MVP column alone does not distinguish them from completed extensions.
 - **DR2:** the current implementation stores member names, not stable member IDs. Revise this claim to “Store a non-blank, case-insensitively unique display name for each team member” or leave stable IDs as future work. **DR7** should describe a member-name reference or empty value, not imply a separate ID relationship.
 - **FR16:** use [the drag handle](evidence/drag-handle.png) and [the mid-drag state](evidence/mid-drag.png). Browser verification also performed a real mouse drag and confirmed the saved status changed to Review.
 
@@ -140,4 +140,12 @@ Commit `02d7276` deployed successfully to https://vibecoding-project-tracker-top
 
 Production evidence: [skip links](evidence/deployed-skip-links.png), [keyboard focus](evidence/deployed-keyboard-focus.png), [mobile overview](evidence/deployed-mobile-overview.png), [mobile board](evidence/deployed-mobile-board.png), [theme restored](evidence/deployed-theme-restored.png), and [verification results](evidence/deployed-verification.json).
 
-Outstanding scope decisions remain unconfirmed for FR22–26 and their dependent requirements. The Word report has not been edited; the evidence and proposed report corrections above are ready to insert.
+Outstanding scope decisions remain unconfirmed for FR22–24 and their dependent requirements. The Word report has not been edited; the evidence and proposed report corrections above are ready to insert.
+
+### Optional profile and AI tool fields
+
+FR25/DR18: Teams now supports optional email and GitHub username/URL fields when adding a member. Expand Contact details under an existing member to view, edit or clear them, then select Save contact details. Values are stored locally with the team; they do not send email or connect to GitHub.
+
+FR26/DR19: the ticket editor has an optional AI tool used field above Context. Enter a tool name such as ChatGPT or Claude and save the ticket. The existing `contextTool` property stores it, including across reloads and sprint transfers. Clearing the input saves an empty value. Copy Context continues to copy the briefing itself.
+
+These fields have been verified locally, including editing, clearing and reload persistence. They have not yet been deployed. The Word report remains unchanged.
