@@ -101,3 +101,35 @@ Once M9 (`context`) is done, keep the Context field of each real task up to date
 ---
 
 *UXD Vibecoding Hackathon 2026 · Prof. Dr. Ignacio Alvarez*
+
+## Assessor demo and report scope
+
+For a first-load demonstration, open the prototype in a fresh browser profile or private window. Existing saved workspaces are deliberately preserved and do not receive replacement demo data.
+
+- Sprint 1 starts with six sample tickets. Open **Build the task editor** to see a labelled sample handover with requirements, an AI conversation summary, a simulated error log and next steps. **Copy Context** copies that briefing.
+- The **Demo** deliverable links to the deployed prototype. Other deliverables remain empty until real links are supplied.
+- **Sprint 2** starts empty so the transfer control is immediately enabled. Transfer the context-bearing ticket, open Sprint 2 and verify its details.
+- The sample tickets include all four team members plus an unassigned ticket. The open-workload chart has one assigned task per member. The editor supports reassignment and clearing via **Unassigned**.
+- Dates are set relative to the first load: yesterday, tomorrow and next week, plus completed and undated examples. The workspace is saved at initialization so these dates do not shift on reload. They naturally age after the initial demo.
+- The header says **Team board**. There is one browser-local workspace and one team, without sign-in or shared accounts.
+
+### Corrections for the attached coursework report
+
+These IDs refer to *Adopting technology work (v1)*, not the earlier PRD numbering.
+
+- **NFR8 (proposed report change, not yet confirmed):** change MVP from Yes to No and label it “Implemented defensive behaviour; outside the assessed demonstration”. Failed saves are handled in code and have been tested by forcing storage failures, but no normal first-load screenshot demonstrates that failure. Retain the handling in the application.
+- **FR22–26, NFR14, DR16 and DR18–21:** currently **not implemented or demonstrated**. Treating them as future/out-of-scope requirements is proposed and still requires confirmation. “No” in the MVP column alone does not distinguish them from completed extensions. A reserved `contextTool` field does not demonstrate FR26/DR19.
+- **DR2:** the current implementation stores member names, not stable member IDs. Revise this claim to “Store a non-blank, case-insensitively unique display name for each team member” or leave stable IDs as future work. **DR7** should describe a member-name reference or empty value, not imply a separate ID relationship.
+- **FR16:** use [the drag handle](evidence/drag-handle.png) and [the mid-drag state](evidence/mid-drag.png). Browser verification also performed a real mouse drag and confirmed the saved status changed to Review.
+
+The Word attachment is unchanged. Apply these scope corrections to its requirement tables and distinguish implemented extensions from future work in the prototype mapping.
+
+Evidence captured locally on 28 October 2026: [fresh board](evidence/first-load-board.png), [filled-in context](evidence/copy-context.png), [drag handle](evidence/drag-handle.png), and [mid-drag state](evidence/mid-drag.png). These screenshots show local changes, not a deployment.
+
+### Keyboard and mobile evidence
+
+- [Visible skip links](evidence/skip-links.png): Tab reveals the first skip link; Enter moves focus to the board.
+- [Keyboard focus](evidence/keyboard-focus.png): the focused board region has a visible outline. Browser checks also cover dialog initial focus, wrapping Tab navigation and Escape returning focus to the trigger.
+- [Mobile overview](evidence/mobile-overview.png) and [mobile board](evidence/mobile-board.png): captured at 390 × 844 CSS pixels. The page stays 390px wide; the four columns scroll inside the board. This is browser emulation, not a physical-device test.
+- [Theme restored](evidence/theme-restored.png): dark mode survives reload via `vibetracker.theme`; switching back to light also persists.
+- [Local verification results](evidence/verification.json) record fresh-storage, context copying, transfer, keyboard, theme and mobile checks. These focused checks do not establish full accessibility conformance.

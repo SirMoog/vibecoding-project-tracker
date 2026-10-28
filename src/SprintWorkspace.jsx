@@ -34,24 +34,23 @@ function loadWorkspace(initialTasks, initialAnchors, initialTeam) {
         error: ''
       };
     }
-    const tasks = JSON.parse(localStorage.getItem('vibetracker.tasks') ?? 'null') ?? initialTasks;
-    const anchors = JSON.parse(localStorage.getItem('vibetracker.anchors') ?? 'null') ?? initialAnchors;
+    const savedTasks = localStorage.getItem('vibetracker.tasks');
+    const savedAnchors = localStorage.getItem('vibetracker.anchors');
+    const fresh = savedTasks === null && savedAnchors === null;
+    const tasks = JSON.parse(savedTasks ?? 'null') ?? initialTasks;
+    const anchors = JSON.parse(savedAnchors ?? 'null') ?? initialAnchors;
     if (!Array.isArray(tasks) || !Array.isArray(anchors)) throw new Error('Invalid existing board');
-    return {
-      data: {
-        version: 1,
-        teams: migrateTeams({}, loadTeam(undefined, initialTeam, tasks)),
-        selectedTeamId: 'team-1',
-        selectedId: 'sprint-1',
-        sprints: [{
-          id: 'sprint-1',
-          name: 'Sprint 1',
-          tasks,
-          anchors
-        }]
-      },
-      error: ''
+    const data = {
+      version: 1,
+      teams: migrateTeams({}, loadTeam(undefined, initialTeam, tasks)),
+      selectedTeamId: 'team-1',
+      selectedId: 'sprint-1',
+      sprints: [{ id: 'sprint-1', name: 'Sprint 1', tasks, anchors },
+        ...(fresh ? [{ id: 'sprint-2', name: 'Sprint 2', tasks: [], anchors: initialAnchors.map(anchor => ({ ...anchor, url: null })) }] : [])]
     };
+    // Save the initial demo once so relative dates do not move on every reload.
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    return { data, error: '' };
   } catch {
     return {
       data: null,

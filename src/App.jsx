@@ -1,3 +1,4 @@
+import { createDemoTasks, DEMO_TEAM } from './demoData';
 import { useLanguage } from "./Language";
 import { useState, useEffect, useRef } from 'react';
 import { getDeadline } from './deadlines';
@@ -39,7 +40,7 @@ export const STAGES = [{
 }];
 
 // Sample teammates for trying task assignment.
-export const TEAM = ['SirMoog', 'Elena Rostova', 'Marcus Chen', 'Devon Vance'];
+export const TEAM = DEMO_TEAM;
 
 /**
  * A tiny localStorage hook — survives reloads, no library needed.
@@ -71,55 +72,7 @@ export function useLocalStorage(key, initialValue) {
 }
 
 // Seed once on first use; existing saved tasks take precedence.
-export const INITIAL_TASKS = [{
-  id: 'TASK-104',
-  title: 'Build the task editor',
-  description: 'Create a focused editor for adding, updating and deleting tasks.',
-  type: 'feature',
-  status: 'todo',
-  assignee: TEAM[0],
-  dueDate: null,
-  createdDate: '2026-10-20',
-  context: '',
-  contextTool: null,
-  contextUpdatedAt: null
-}, {
-  id: 'TASK-103',
-  title: 'Create the Kanban board',
-  description: 'Bring the four workflow stages together in one clear project workspace.',
-  type: 'feature',
-  status: 'in-progress',
-  assignee: TEAM[0],
-  dueDate: '2026-10-23',
-  createdDate: '2026-10-20',
-  context: '',
-  contextTool: null,
-  contextUpdatedAt: null
-}, {
-  id: 'TASK-102',
-  title: 'Check long task titles',
-  description: 'Verify that longer titles wrap inside cards without pushing the columns apart.',
-  type: 'bug',
-  status: 'review',
-  assignee: TEAM[0],
-  dueDate: '2026-10-24',
-  createdDate: '2026-10-20',
-  context: '',
-  contextTool: null,
-  contextUpdatedAt: null
-}, {
-  id: 'TASK-101',
-  title: 'Define the visual direction',
-  description: 'Document the blue and lavender palette, typography and component styles.',
-  type: 'feature',
-  status: 'done',
-  assignee: TEAM[0],
-  dueDate: '2026-10-20',
-  createdDate: '2026-10-20',
-  context: '',
-  contextTool: null,
-  contextUpdatedAt: null
-}];
+export const INITIAL_TASKS = createDemoTasks();
 const STAGE_STYLES = {
   todo: {
     dot: 'bg-slate-400',
@@ -404,7 +357,7 @@ function SprintBoard({
           <div className="flex items-center gap-2 text-sm font-medium"><BoardIcon /><span>{t("Vibecoding Project Tracker")}</span></div>
           <div className="flex items-center gap-3 text-xs text-ink-muted">
             <span className="rounded bg-surface-selected px-3 py-1.5 font-medium text-brand-link">{t("Board")}</span>
-            <span>{t("Personal workspace")}</span>
+            <span>{t("Team board")}</span>
           </div>
         </header>
         <main id="board" className="min-w-0 p-3 sm:p-6">
@@ -425,7 +378,7 @@ function SprintBoard({
             <span className="h-1.5 w-1.5 rounded-full bg-brand-accent" aria-hidden="true" />{t("Drag tasks to move or reorder \xB7 Use the status dropdown for keyboard moves \xB7 Click to edit")}
 
           </div>
-          <div id="kanban" role="region" aria-label={t("Kanban board")} tabIndex={0} className="overflow-x-auto rounded-xl pb-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-link">
+          <div id="kanban" role="region" aria-label={t("Kanban board")} tabIndex={0} className="relative overflow-x-auto rounded-xl pb-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-link">
             <div className="grid min-w-[1040px] grid-cols-4 items-stretch gap-4">
               {STAGES.map(stage => {
               const stageTasks = tasks.filter(task => task.status === stage.id);

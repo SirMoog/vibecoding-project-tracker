@@ -1,0 +1,19 @@
+{
+  "url": "http://127.0.0.1:5173",
+  "checkedAt": "2026-10-28T22:39:51.997Z",
+  "freshStorage": true,
+  "tasks": 6,
+  "sprints": 2,
+  "keyboard": "skip link, visible focus, dialog focus trap and Escape passed",
+  "theme": "dark and light restored after reload",
+  "copy": "clipboard exactly matches seeded briefing",
+  "transfer": "all ticket details preserved after reload",
+  "label": "Team board; Personal workspace absent",
+  "mobile": {
+    "viewport": 390,
+    "page": 390,
+    "board": 366,
+    "content": 1040
+  },
+  "consoleErrors": []
+}

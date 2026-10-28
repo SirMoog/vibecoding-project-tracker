@@ -138,3 +138,9 @@ The sidebar Team section lists members and accepts new names for assignment acro
 The browser workspace supports at most one team (there are no user accounts). Users can rename or delete their team and add or remove members. Create team is offered only when there is no team; the save handler and workspace update helper also enforce the limit. Removing members clears their assignments across all sprints, preserving ticket content. Deleting the team allows a new team to be created. Older multiple-team data is consolidated into the selected team (or the first team), keeping every distinct member and all existing tickets and assignments. Changes are persisted before updating the UI.
 
 Team management opens as a dedicated main screen from the sidebar Teams button. Back to board or selecting a sprint returns to task management. The active navigation item is marked, and opening Teams focuses its heading for keyboard and screen-reader users.
+
+### First load demonstration
+
+Fresh browser workspaces seed two sprints and six varied tickets, including a clearly labelled sample AI handover, all four assignees, an unassigned task and five deadline examples. Dates use local calendar offsets from first load and are persisted immediately. The Demo link points to the deployed prototype. Existing workspace records are not reseeded; legacy single-board records retain their saved tasks and links. The header uses Team board to avoid implying account or workspace switching.
+
+The board scroll container establishes a positioning context so visually hidden accessibility labels cannot expand the mobile page width. At a 390px viewport the document remains 390px wide while columns scroll within the board.

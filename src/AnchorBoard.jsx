@@ -1,3 +1,4 @@
+import { DEMO_URL } from './demoData';
 import { useLanguage } from "./Language";
 import { useRef, useState } from 'react';
 export const INITIAL_ANCHORS = [{
@@ -7,7 +8,7 @@ export const INITIAL_ANCHORS = [{
 }, {
   id: 'demo',
   label: 'Demo',
-  url: null
+  url: DEMO_URL
 }, {
   id: 'report',
   label: 'Report',
