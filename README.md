@@ -133,3 +133,11 @@ Evidence captured locally on 28 October 2026: [fresh board](evidence/first-load-
 - [Mobile overview](evidence/mobile-overview.png) and [mobile board](evidence/mobile-board.png): captured at 390 × 844 CSS pixels. The page stays 390px wide; the four columns scroll inside the board. This is browser emulation, not a physical-device test.
 - [Theme restored](evidence/theme-restored.png): dark mode survives reload via `vibetracker.theme`; switching back to light also persists.
 - [Local verification results](evidence/verification.json) record fresh-storage, context copying, transfer, keyboard, theme and mobile checks. These focused checks do not establish full accessibility conformance.
+
+### Production verification on 28 October 2026
+
+Commit `02d7276` deployed successfully to https://vibecoding-project-tracker-topaz.vercel.app/ through Vercel. A fresh isolated browser session passed the same checks against that public URL: two sprints, six tickets, sample context copied exactly, Demo link populated, varied assignees, all deadline examples, preserved transfer details after reload, visible keyboard focus and skip links, dialog focus management, dark/light preference restoration, and the Team board header. A 390 × 844 mobile browser viewport retained a 390px document width with horizontal scrolling inside the board. No page JavaScript errors were observed.
+
+Production evidence: [skip links](evidence/deployed-skip-links.png), [keyboard focus](evidence/deployed-keyboard-focus.png), [mobile overview](evidence/deployed-mobile-overview.png), [mobile board](evidence/deployed-mobile-board.png), [theme restored](evidence/deployed-theme-restored.png), and [verification results](evidence/deployed-verification.json).
+
+Outstanding scope decisions remain unconfirmed for FR22–26 and their dependent requirements. The Word report has not been edited; the evidence and proposed report corrections above are ready to insert.
