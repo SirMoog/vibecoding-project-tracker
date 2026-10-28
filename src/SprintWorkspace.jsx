@@ -2,6 +2,8 @@ import { LanguageSelect, useLanguage } from "./Language";
 import { useRef, useState } from 'react';
 import ThemeToggle from './ThemeToggle';
 import TeamMembers from './TeamMembers';
+import { createDemoSprintTwoTasks, DEMO_PROFILES } from './demoData';
+import { migrateProjectAnchors } from './projectAnchors';
 import { allMembers, migrateTeams, replaceTeams } from './teams';
 const STORAGE_KEY = 'vibetracker.sprints.v1';
 const control = 'rounded-md border border-border-subtle px-3 py-2 text-sm';
@@ -21,12 +23,14 @@ function loadWorkspace(initialTasks, initialAnchors, initialTeam) {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved !== null) {
       const data = JSON.parse(saved);
-      if (data.version !== 1 || !Array.isArray(data.sprints) || !data.sprints.every(sprint => typeof sprint.id === 'string' && typeof sprint.name === 'string' && Array.isArray(sprint.tasks) && Array.isArray(sprint.anchors))) throw new Error('Invalid sprint data');
+      if (data.version !== 1 || !Array.isArray(data.sprints) || !data.sprints.every(sprint => typeof sprint.id === 'string' && typeof sprint.name === 'string' && Array.isArray(sprint.tasks) && (data.projectAnchors !== undefined || Array.isArray(sprint.anchors)))) throw new Error('Invalid sprint data');
       const teams = migrateTeams(data, data.teams === undefined ? loadTeam(data.team, initialTeam, data.sprints.flatMap(sprint => sprint.tasks)) : []);
       const { team: legacyTeam, ...rest } = data;
       return {
         data: {
           ...rest,
+          projectAnchors: migrateProjectAnchors(data),
+          sprints: data.sprints.map(({ anchors, ...sprint }) => sprint),
           teams,
           selectedTeamId: teams.some(team => team.id === data.selectedTeamId) ? data.selectedTeamId : teams[0]?.id ?? null,
           selectedId: data.sprints.some(sprint => sprint.id === data.selectedId) ? data.selectedId : data.sprints[0]?.id ?? null
@@ -42,11 +46,12 @@ function loadWorkspace(initialTasks, initialAnchors, initialTeam) {
     if (!Array.isArray(tasks) || !Array.isArray(anchors)) throw new Error('Invalid existing board');
     const data = {
       version: 1,
-      teams: migrateTeams({}, loadTeam(undefined, initialTeam, tasks)),
+      teams: migrateTeams({}, loadTeam(undefined, initialTeam, tasks)).map(team => fresh ? { ...team, profiles: DEMO_PROFILES.map(profile => ({ ...profile })) } : team),
+      projectAnchors: anchors,
       selectedTeamId: 'team-1',
       selectedId: 'sprint-1',
-      sprints: [{ id: 'sprint-1', name: 'Sprint 1', tasks, anchors },
-        ...(fresh ? [{ id: 'sprint-2', name: 'Sprint 2', tasks: [], anchors: initialAnchors.map(anchor => ({ ...anchor, url: null })) }] : [])]
+      sprints: [{ id: 'sprint-1', name: 'Sprint 1', tasks },
+        ...(fresh ? [{ id: 'sprint-2', name: 'Sprint 2', tasks: createDemoSprintTwoTasks() }] : [])]
     };
     // Save the initial demo once so relative dates do not move on every reload.
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -136,11 +141,7 @@ export default function SprintWorkspace({
     const next = {
       id: crypto.randomUUID(),
       name: title,
-      tasks: [],
-      anchors: initialAnchors.map(anchor => ({
-        ...anchor,
-        url: null
-      }))
+      tasks: []
     };
     if (commit({
       ...workspace,
@@ -269,7 +270,7 @@ export default function SprintWorkspace({
     </div>
     {renaming && <div className="max-w-lg">{sprintForm(true)}</div>}
     {deleting && <div role="group" aria-label={t("Confirm sprint deletion")} className="mt-3 max-w-xl rounded-lg border border-border-subtle bg-surface-card p-4">
-      <p className="text-sm">{t("Delete {0}? This permanently removes its {1} tasks, saved context and deliverable links.", sprint?.name, sprint?.tasks.length)}</p>
+      <p className="text-sm">{t("Delete {0}? This permanently removes its {1} tasks and saved context. Project deliverable links will be kept.", sprint?.name, sprint?.tasks.length)}</p>
       <div className="mt-3 flex flex-wrap gap-2"><button autoFocus type="button" onClick={() => {
           setDeleting(false);
           setError('');
@@ -315,7 +316,7 @@ export default function SprintWorkspace({
           <TeamMembers teams={workspace.teams} selectedId={workspace.selectedTeamId}
             onChange={(teams, selectedId) => commit(replaceTeams(workspace, teams, selectedId))} />
         </main> : sprint ? children({
-        sprint,
+        sprint: { ...sprint, anchors: workspace.projectAnchors },
         sprintFooter,
         team: allMembers(workspace.teams),
         sprints: workspace.sprints,
@@ -323,9 +324,7 @@ export default function SprintWorkspace({
         saveTasks: tasks => updateSprint({
           tasks
         }),
-        saveAnchors: anchors => updateSprint({
-          anchors
-        })
+        saveAnchors: projectAnchors => commit({ ...workspace, projectAnchors })
       }) : <main className="p-8 text-center"><h1 className="text-2xl font-semibold">{t("Create your next sprint")}</h1><p className="mt-3 text-ink-muted">{t("Choose New sprint in the sidebar to start a fresh board.")}</p></main>}
       </div>
     </div>;

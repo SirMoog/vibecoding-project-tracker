@@ -107,8 +107,8 @@ Once M9 (`context`) is done, keep the Context field of each real task up to date
 For a first-load demonstration, open the prototype in a fresh browser profile or private window. Existing saved workspaces are deliberately preserved and do not receive replacement demo data.
 
 - Sprint 1 starts with six sample tickets. Open **Build the task editor** to see a labelled sample handover with requirements, an AI conversation summary, a simulated error log and next steps. **Copy Context** copies that briefing.
-- The **Demo** deliverable links to the deployed prototype. Other deliverables remain empty until real links are supplied.
-- **Sprint 2** starts empty so the transfer control is immediately enabled. Transfer the context-bearing ticket, open Sprint 2 and verify its details.
+- The **Demo** deliverable links to the deployed prototype. Deliverables are shared project-wide: edits and clearing apply in every sprint, and deleting a sprint retains the links. Older conflicting sprint links are preserved as additional links labelled with the original sprint name. Other deliverables remain empty until real links are supplied.
+- **Sprint 2** starts with two assigned tickets, including **Verify project links and sprint handover**, a full sample handover from Elena Rostova to Marcus Chen. Both sprints support transfer immediately. Eight tickets are seeded in total.
 - The sample tickets include all four team members plus an unassigned ticket. The open-workload chart has one assigned task per member. The editor supports reassignment and clearing via **Unassigned**.
 - Dates are set relative to the first load: yesterday, tomorrow and next week, plus completed and undated examples. The workspace is saved at initialization so these dates do not shift on reload. They naturally age after the initial demo.
 - The header says **Team board**. There is one browser-local workspace and one team, without sign-in or shared accounts.
@@ -119,7 +119,7 @@ These IDs refer to *Adopting technology work (v1)*, not the earlier PRD numberin
 
 - **NFR8 (proposed report change, not yet confirmed):** change MVP from Yes to No and label it “Implemented defensive behaviour; outside the assessed demonstration”. Failed saves are handled in code and have been tested by forcing storage failures, but no normal first-load screenshot demonstrates that failure. Retain the handling in the application.
 - **FR22–24, NFR14, DR16, DR20 and DR21:** currently **not implemented or demonstrated**. Treating them as future/out-of-scope requirements is proposed and still requires confirmation. “No” in the MVP column alone does not distinguish them from completed extensions.
-- **DR2:** the current implementation stores member names, not stable member IDs. Revise this claim to “Store a non-blank, case-insensitively unique display name for each team member” or leave stable IDs as future work. **DR7** should describe a member-name reference or empty value, not imply a separate ID relationship.
+- **DR2 replacement wording:** “Store a non-blank, case-insensitively unique display name for each team member, with optional email and GitHub details.” **DR7 replacement wording:** “Store each ticket’s assignee as an existing team member’s display name, or an empty value when unassigned; clear the assignment when that member is removed.” The prototype has no member-renaming control and does not support duplicate display names. Stable member IDs and member renaming remain future work; no stable-ID claim is made.
 - **FR16:** use [the drag handle](evidence/drag-handle.png) and [the mid-drag state](evidence/mid-drag.png). Browser verification also performed a real mouse drag and confirmed the saved status changed to Review.
 
 The Word attachment is unchanged. Apply these scope corrections to its requirement tables and distinguish implemented extensions from future work in the prototype mapping.
@@ -149,3 +149,11 @@ FR25/DR18: Teams now supports optional email and GitHub username/URL fields when
 FR26/DR19: the ticket editor has an optional AI tool used field above Context. Enter a tool name such as ChatGPT or Claude and save the ticket. The existing `contextTool` property stores it, including across reloads and sprint transfers. Clearing the input saves an empty value. Copy Context continues to copy the briefing itself.
 
 These fields have been verified locally, including editing, clearing and reload persistence. They have not yet been deployed. The Word report remains unchanged.
+
+### Updated starter examples and shared deliverables
+
+Fresh workspaces now contain eight tickets: six in Sprint 1 and two in Sprint 2. TASK-104 and TASK-201 each have a complete, clearly labelled sample briefing. TASK-201 records a handover from Elena Rostova to Marcus Chen. TASK-104’s sample error concerns multiline copying; failed-save handling remains documented independently under NFR8 rather than being represented only by sample context.
+
+Elena and Marcus have fictional contact examples using reserved example.com email addresses and explicitly fictional GitHub usernames. Expand Contact details to see the values and sample-data notice. SirMoog and Devon retain blank optional fields. Existing user workspaces are not given replacement tasks or contact details.
+
+Project links now live in `projectAnchors` on the workspace, not on individual sprints. Legacy links are merged without discarding distinct URLs. These latest changes have been verified locally with thirteen data tests and browser checks for shared edits, reload, populated Sprint 2, contact examples, legacy migration and sprint deletion. The Word attachment is unchanged; use the exact DR2/DR7 replacement wording above. Earlier production evidence records the previous six-ticket version, not these latest local changes.

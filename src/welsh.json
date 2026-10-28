@@ -202,5 +202,7 @@
   "Save contact details": "Cadw manylion cyswllt",
   "Contact details saved.": "Manylion cyswllt wedi’u cadw.",
   "AI tool used (optional)": "Offeryn AI a ddefnyddiwyd (dewisol)",
-  "e.g. ChatGPT, Claude, GitHub Copilot": "e.e. ChatGPT, Claude, GitHub Copilot"
+  "e.g. ChatGPT, Claude, GitHub Copilot": "e.e. ChatGPT, Claude, GitHub Copilot",
+  "Fictional sample contact details. Replace with your own.": "Manylion cyswllt enghreifftiol ffuglennol. Rhowch eich manylion eich hun yn eu lle.",
+  "Delete {0}? This permanently removes its {1} tasks and saved context. Project deliverable links will be kept.": "Dileu {0}? Bydd hyn yn dileu ei {1} dasg a’r cyd-destun sydd wedi’i gadw yn barhaol. Bydd dolenni cyflawniadau’r prosiect yn cael eu cadw."
 }

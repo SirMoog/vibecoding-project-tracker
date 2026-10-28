@@ -115,7 +115,7 @@ Validation: automated WCAG A/AA checks with axe on the desktop board, task modal
 
 ## 10. Sprints
 
-The sprint selector switches the entire board, including task context, task order, deliverable links and live insights. New sprints start empty. Existing local board data is loaded into Sprint 1; the original storage keys are retained as a migration backup. Sprint data and selection are saved together under `vibetracker.sprints.v1`. Deletion requires confirmation and removes only the chosen sprint. Deleting the final sprint shows an empty workspace with a New sprint action. Failed storage writes leave the current workspace intact.
+The sprint selector switches the entire board, including task context, task order and live insights. Deliverable links are shared by the whole project. New sprints start empty. Existing local board data is loaded into Sprint 1; the original storage keys are retained as a migration backup. Sprint data and selection are saved together under `vibetracker.sprints.v1`. Deletion requires confirmation and removes only the chosen sprint. Deleting the final sprint shows an empty workspace with a New sprint action. Failed storage writes leave the current workspace intact.
 
 Sprint navigation lives in the left sidebar: a named sprint list with task counts, selected-state highlighting and a New sprint action. Creation uses a short inline name form. Each sprint page ends with Edit sprint and Delete sprint actions below the charts. Editing changes the sprint name without changing its tasks or links; deletion retains its explicit confirmation step.
 
@@ -141,10 +141,14 @@ Team management opens as a dedicated main screen from the sidebar Teams button. 
 
 ### First load demonstration
 
-Fresh browser workspaces seed two sprints and six varied tickets, including a clearly labelled sample AI handover, all four assignees, an unassigned task and five deadline examples. Dates use local calendar offsets from first load and are persisted immediately. The Demo link points to the deployed prototype. Existing workspace records are not reseeded; legacy single-board records retain their saved tasks and links. The header uses Team board to avoid implying account or workspace switching.
+Fresh browser workspaces seed two sprints and eight varied tickets, including two clearly labelled sample AI handovers, all four assignees, an unassigned task and five deadline examples. Dates use local calendar offsets from first load and are persisted immediately. The Demo link points to the deployed prototype. Existing workspace records are not reseeded; legacy single-board records retain their saved tasks and links. The header uses Team board to avoid implying account or workspace switching.
 
 The board scroll container establishes a positioning context so visually hidden accessibility labels cannot expand the mobile page width. At a 390px viewport the document remains 390px wide while columns scroll within the board.
 
 ### Optional member and AI tool details
 
 Member contact details are progressively disclosed below each member on the Teams screen. The optional email input uses browser email validation; GitHub accepts a username or URL as plain text. Profiles are stored beside the existing name list, so existing task assignments remain compatible. Removing a member also removes their profile. An optional AI tool used field in the task editor saves to contextTool. Both flows use explicit save actions and retain pending values after a failed storage write.
+
+### Project deliverables and demo contacts
+
+Project deliverables are stored once as workspace.projectAnchors and shown on every sprint. Creating, switching or deleting a sprint does not change them. Migration merges old sprint links; conflicting populated links remain available as additional labelled project links. Two fictional member contact profiles illustrate the optional fields, while the other two remain empty. Samples use reserved example.com emails and are explicitly labelled fictional. Member identities remain unique names; the report should describe name-based references, not stable IDs.

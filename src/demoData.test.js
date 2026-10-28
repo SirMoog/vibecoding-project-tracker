@@ -22,3 +22,16 @@ test('copyable sample contains the full handover and a real prototype link', () 
   assert.equal(createDemoTasks()[0].context, DEMO_CONTEXT);
   assert.equal(new URL(DEMO_URL).hostname, 'vibecoding-project-tracker-topaz.vercel.app');
 });
+
+test('Sprint 2 contains a named handover and two assigned tickets with unique IDs', async () => {
+  const { createDemoSprintTwoTasks, DEMO_HANDOVER, DEMO_PROFILES } = await import('./demoData.js');
+  const next = createDemoSprintTwoTasks(new Date(2026, 9, 28));
+  assert.equal(next.length, 2);
+  assert.equal(next[0].context, DEMO_HANDOVER);
+  for (const heading of ['Requirements','AI conversation summary','Example debugging log','Handover notes','Next steps','Elena Rostova','Marcus Chen']) assert.ok(DEMO_HANDOVER.includes(heading));
+  assert.equal(new Set([...createDemoTasks(), ...next].map(t=>t.id)).size, 8);
+  assert.ok(next.every(t=>DEMO_TEAM.includes(t.assignee)));
+  assert.equal(DEMO_PROFILES.length, 2);
+  assert.ok(DEMO_PROFILES.every(p=>p.isSample && p.email.endsWith('@example.com') && DEMO_TEAM.includes(p.name)));
+  assert.ok(!DEMO_CONTEXT.includes('QuotaExceededError'));
+});
