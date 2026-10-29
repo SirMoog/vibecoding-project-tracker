@@ -111,6 +111,17 @@ export default function SprintWorkspace({
     window.scrollTo({ top: 0 });
     requestAnimationFrame(() => teamsButton.current?.focus());
   }
+  function goToBoard(event) {
+    event.preventDefault();
+    setView('board');
+    setCreating(false);
+    setRenaming(false);
+    setDeleting(false);
+    window.scrollTo({ top: 0 });
+    requestAnimationFrame(() => {
+      (document.getElementById('kanban') ?? newButton.current)?.focus({ preventScroll: true });
+    });
+  }
   function select(id) {
     if (!workspace.sprints.some(item => item.id === id)) return;
     if (commit({
@@ -285,7 +296,7 @@ export default function SprintWorkspace({
         <a href="#insights" onClick={() => requestAnimationFrame(() => document.getElementById('insights')?.focus())}>{t("Skip to board insights")}</a>
       </nav>}
       <aside aria-label={t("Workspace sidebar")} className="shrink-0 border-b border-border-subtle bg-surface-panel p-4 lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:overflow-y-auto lg:border-b-0 lg:border-r">
-        <div className="mb-8 flex items-center gap-3 px-2 py-2"><span aria-hidden="true" className="rounded-md bg-brand-action px-2 py-1 text-white">▥</span><span className="text-lg font-semibold">FlowTask</span></div>
+        <a href="#kanban" onClick={goToBoard} aria-label={`FlowTask — ${t('Back to board')}`} className="mb-8 flex items-center gap-3 rounded-md px-2 py-2 hover:bg-surface-card"><span aria-hidden="true" className="rounded-md bg-brand-action px-2 py-1 text-white">▥</span><span className="text-lg font-semibold">FlowTask</span></a>
         <nav aria-label={t("Sprints")}>
           <div className="mb-3 flex items-center justify-between px-2"><h2 className="text-xs font-semibold uppercase tracking-widest text-ink-muted">{t("Sprints")}</h2><span className="text-xs text-ink-muted">{workspace.sprints.length}</span></div>
           <ul className="space-y-1">{workspace.sprints.map(item => <li key={item.id}>
